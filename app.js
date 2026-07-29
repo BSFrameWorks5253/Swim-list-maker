@@ -694,8 +694,8 @@ class AttendanceApp {
         theme: 'plain',
         styles: {
           font: 'helvetica',
-          fontSize: 11,
-          cellPadding: { top: 2.2, bottom: 2.2, left: 3, right: 3 },
+          fontSize: 11.5,
+          cellPadding: { top: 4.8, bottom: 4.8, left: 3, right: 3 },
           lineColor: [0, 0, 0],
           lineWidth: 0.25,
           textColor: [0, 0, 0],
@@ -704,12 +704,12 @@ class AttendanceApp {
         },
         headStyles: {
           fontStyle: 'bold',
-          fontSize: 11,
+          fontSize: 11.5,
           fillColor: [255, 255, 255],
           textColor: [0, 0, 0],
           lineWidth: 0.35,
           lineColor: [0, 0, 0],
-          cellPadding: { top: 3, bottom: 3, left: 2, right: 2 }
+          cellPadding: { top: 4, bottom: 4, left: 2, right: 2 }
         },
         columnStyles: columnStyles
       });

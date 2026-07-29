@@ -802,11 +802,11 @@ textarea:focus {
 .doc-table th,
 .doc-table td {
   border: 1px solid #000000;
-  padding: 8px 10px;
+  padding: 13px 10px;
   vertical-align: middle;
   font-size: 12.5pt;
   color: #000000;
-  min-height: 34px;
+  height: 44px;
   box-sizing: border-box;
 }
 
