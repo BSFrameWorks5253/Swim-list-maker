@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Sheet Studio</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <!-- jsPDF & jspdf-autotable for Vector Crisp PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+
+  <!-- Animated Splash / Loading Screen Overlay -->
+  <div id="loading-overlay">
+    <div class="loader-content">
+      <div class="loader-icon">🏊‍♀️</div>
+      <div class="loader-title">Attendance Sheet Studio</div>
+      <div class="spinner-bar"></div>
+    </div>
+  </div>
+
+  <!-- App Navbar Header -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-icon">🏊‍♀️</div>
+      <div>
+        <h1 class="brand-title">Attendance Sheet Studio</h1>
+        <div class="brand-subtitle">Vector PDF & Attendance Generator</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Live Stats Bar -->
+      <div class="stats-bar">
+        <div class="stat-chip">
+          <span>Students:</span>
+          <strong id="stat-students-count">0</strong>
+        </div>
+        <div class="stat-chip">
+          <span>Dates:</span>
+          <strong id="stat-dates-count">0</strong>
+        </div>
+        <div class="stat-chip">
+          <span>Extra Rows:</span>
+          <strong id="stat-rows-count">0</strong>
+        </div>
+      </div>
+
+      <!-- Theme Switcher Toggle -->
+      <button id="btn-theme-toggle" class="theme-toggle-btn" title="Toggle Light / Dark Mode">
+        <span id="theme-toggle-icon">☀️</span>
+        <span id="theme-toggle-label">Light</span>
+      </button>
+
+      <button id="btn-export-pdf" class="btn btn-primary">📄 Export PDF</button>
+      <button id="btn-print-window" class="btn btn-secondary">🖨️ Print Document</button>
+      <button id="btn-export-csv" class="btn btn-emerald">📊 Export CSV</button>
+    </div>
+  </header>
+
+  <!-- Main Grid Layout -->
+  <main class="main-container">
+
+    <!-- Left Controls Sidebar -->
+    <aside class="controls-sidebar">
+
+      <!-- Batch Type Selector Tabs -->
+      <div class="tab-switcher">
+        <button class="tab-btn active girls" data-category="Girls">👧 Girls List</button>
+        <button class="tab-btn boys" data-category="Boys">👦 Boys List</button>
+        <button class="tab-btn custom" data-category="Custom">⚙️ Custom Batch</button>
+      </div>
+
+      <!-- Header & Class Details Panel -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <span class="panel-title">📝 Class & Header Details</span>
+        </div>
+        <div class="form-group">
+          <label for="input-title">Activity Title</label>
+          <input type="text" id="input-title" value="Swimming attendance" placeholder="e.g. Swimming attendance">
+        </div>
+        <div class="form-group">
+          <label for="input-subtitle">Time / Sub-header</label>
+          <input type="text" id="input-subtitle" value="Time : 11:00am to 11:40am" placeholder="e.g. Time : 11:00am to 11:40am">
+        </div>
+        <div class="form-group">
+          <label for="input-batch">Class / Batch Name</label>
+          <input type="text" id="input-batch" value="Girls Batch 4" placeholder="e.g. Girls Batch 4">
+        </div>
+      </div>
+
+      <!-- Date & Schedule Generator Panel -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <span class="panel-title">📅 Date Auto-Generator</span>
+        </div>
+        <div class="form-row-3">
+          <div class="form-group">
+            <label for="select-month">Month</label>
+            <select id="select-month">
+              <option value="0">January</option>
+              <option value="1">February</option>
+              <option value="2">March</option>
+              <option value="3">April</option>
+              <option value="4">May</option>
+              <option value="5">June</option>
+              <option value="6" selected>July</option>
+              <option value="7">August</option>
+              <option value="8">September</option>
+              <option value="9">October</option>
+              <option value="10">November</option>
+              <option value="11">December</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="input-year">Year</label>
+            <input type="number" id="input-year" value="2026" min="2020" max="2035">
+          </div>
+          <div class="form-group">
+            <label for="select-day">Day of Week</label>
+            <select id="select-day">
+              <option value="6" selected>Saturdays</option>
+              <option value="0">Sundays</option>
+              <option value="1">Mondays</option>
+              <option value="2">Tuesdays</option>
+              <option value="3">Wednesdays</option>
+              <option value="4">Thursdays</option>
+              <option value="5">Fridays</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="input-extra-rows">Extra Empty Rows (at bottom)</label>
+          <input type="number" id="input-extra-rows" value="4" min="0" max="15">
+        </div>
+      </div>
+
+      <!-- Saved Presets Panel -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <span class="panel-title">⭐ Saved Presets</span>
+          <button id="btn-save-preset" class="btn btn-sm btn-pink">+ Save Current</button>
+        </div>
+        <div id="preset-list" class="preset-list">
+          <!-- Populated by JavaScript -->
+        </div>
+        <div class="form-row">
+          <button id="btn-export-json" class="btn btn-sm btn-secondary">💾 Backup Presets</button>
+          <button id="btn-import-json" class="btn btn-sm btn-secondary">📂 Restore Presets</button>
+          <input type="file" id="file-import-json" accept=".json" style="display:none">
+        </div>
+      </div>
+
+      <!-- Student Names Manager Panel -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <span class="panel-title">👥 Student Names</span>
+          <div style="display: flex; gap: 4px;">
+            <button id="btn-sort-names" class="btn btn-sm btn-secondary" title="Sort A-Z">🔤 Sort</button>
+            <button id="btn-clear-names" class="btn btn-sm btn-ghost" title="Clear All">🗑️ Clear</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Add Single Name</label>
+          <div class="form-row" style="grid-template-columns: 1fr auto;">
+            <input type="text" id="input-new-student" placeholder="Enter student name...">
+            <button id="btn-add-student" class="btn btn-primary">+</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Bulk Add (Paste list of names)</label>
+          <textarea id="textarea-bulk-names" rows="2" placeholder="Paste names separated by new lines or commas..."></textarea>
+          <button id="btn-bulk-add" class="btn btn-secondary btn-sm" style="margin-top: 6px;">Add All Names</button>
+        </div>
+
+        <div class="form-group">
+          <div class="student-editor-toolbar">
+            <label>Current Names</label>
+            <input type="text" id="input-search-names" class="search-input" placeholder="🔍 Search names...">
+          </div>
+          <div id="student-tags" class="student-tags">
+            <!-- Populated by JavaScript -->
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- Right Live Document Preview -->
+    <section class="preview-container">
+      
+      <!-- Preview Canvas Controls Toolbar -->
+      <div class="preview-toolbar">
+        <div class="preview-title">
+          <span>📄 Printable Sheet Preview</span>
+        </div>
+        <div class="zoom-controls">
+          <button id="btn-zoom-out" class="icon-btn" title="Zoom Out">-</button>
+          <span id="zoom-level-badge" class="zoom-level-badge">100%</span>
+          <button id="btn-zoom-in" class="icon-btn" title="Zoom In">+</button>
+          <button id="btn-zoom-reset" class="btn btn-sm btn-ghost" style="padding: 2px 8px;">Reset</button>
+        </div>
+      </div>
+
+      <div class="paper-wrapper">
+        <!-- Exact PDF Printable Output Document -->
+        <div id="pdf-document">
+          <div class="doc-header">
+            <div id="doc-title" class="doc-title">Swimming attendance</div>
+            <div id="doc-subtitle" class="doc-subtitle">Time : 11:00am to 11:40am</div>
+            <div id="doc-batch" class="doc-batch">Girls Batch 4</div>
+          </div>
+
+          <table class="doc-table">
+            <thead>
+              <tr id="doc-table-header">
+                <th>Name</th>
+                <th>4th July</th>
+                <th>11th July</th>
+                <th>18th July</th>
+                <th>25th July</th>
+              </tr>
+            </thead>
+            <tbody id="doc-table-body">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- App Footer with Author & Contact Info -->
+  <footer class="app-footer">
+    <div class="footer-content">
+      <span>Attendance Sheet Studio &bull; Created by <strong id="author-name-display">Your Name</strong></span>
+      <span class="footer-dot">•</span>
+      <span>Contact: <strong id="author-phone-display">+1 (234) 567-8900</strong></span>
+    </div>
+  </footer>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- JavaScript Scripts -->
+  <script src="sample_data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
