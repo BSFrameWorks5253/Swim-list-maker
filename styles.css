@@ -812,34 +812,43 @@ textarea:focus {
 
 .doc-table th {
   font-weight: bold;
-  font-size: 12.5pt;
+  font-size: 10.5pt;
   background-color: #ffffff;
   text-align: center;
-  padding: 10px 4px;
+  padding: 10px 2px;
   white-space: nowrap;
   border-top: 1.5px solid #000000;
   border-bottom: 1.5px solid #000000;
+  letter-spacing: -0.2px;
 }
 
 .doc-table th:first-child,
 .doc-table td:first-child {
-  width: 44%;
+  width: 35%;
   text-align: left;
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding-left: 12px;
+  padding-left: 10px;
+  font-size: 12.5pt;
 }
 
 .doc-table th:first-child {
   font-weight: bold;
+  font-size: 12pt;
 }
 
 .doc-table th:not(:first-child),
 .doc-table td:not(:first-child) {
   text-align: center;
   white-space: nowrap;
+}
+
+.doc-table th:not(:first-child) {
+  font-size: 10.5pt;
+  letter-spacing: -0.2px;
+  padding: 10px 2px;
 }
 
 /* ==========================================================================

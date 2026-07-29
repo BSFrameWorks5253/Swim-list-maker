@@ -671,9 +671,10 @@ class AttendanceApp {
     }
 
     // 3. Define Column Widths & Alignments
-    const nameColWidth = 68; // 68mm for Name
-    const remainingWidth = 178 - nameColWidth; // 110mm divided across date columns
+    const nameColWidth = dates.length >= 5 ? 60 : 68;
+    const remainingWidth = 178 - nameColWidth;
     const dateColWidth = dates.length > 0 ? (remainingWidth / dates.length) : 25;
+    const headFontSize = dates.length >= 5 ? 10.5 : 12;
 
     const columnStyles = {
       0: { cellWidth: nameColWidth, halign: 'left', fontStyle: 'normal' }
@@ -704,12 +705,12 @@ class AttendanceApp {
         },
         headStyles: {
           fontStyle: 'bold',
-          fontSize: 12,
+          fontSize: headFontSize,
           fillColor: [255, 255, 255],
           textColor: [0, 0, 0],
           lineWidth: 0.35,
           lineColor: [0, 0, 0],
-          cellPadding: { top: 5, bottom: 5, left: 2, right: 2 }
+          cellPadding: { top: 5, bottom: 5, left: 1.5, right: 1.5 }
         },
         columnStyles: columnStyles
       });
