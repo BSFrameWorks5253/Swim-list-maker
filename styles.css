@@ -765,31 +765,31 @@ textarea:focus {
 }
 
 .doc-header {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .doc-title {
-  font-size: 19pt;
+  font-size: 21pt;
   font-weight: bold;
   color: #000000;
   line-height: 1.25;
-  margin-bottom: 3px;
+  margin-bottom: 4px;
 }
 
 .doc-subtitle {
-  font-size: 14.5pt;
-  font-weight: bold;
-  color: #000000;
-  line-height: 1.25;
-  margin-bottom: 3px;
-}
-
-.doc-batch {
   font-size: 15pt;
   font-weight: bold;
   color: #000000;
   line-height: 1.25;
-  margin-bottom: 12px;
+  margin-bottom: 4px;
+}
+
+.doc-batch {
+  font-size: 16pt;
+  font-weight: bold;
+  color: #000000;
+  line-height: 1.25;
+  margin-bottom: 16px;
 }
 
 .doc-table {
@@ -802,20 +802,20 @@ textarea:focus {
 .doc-table th,
 .doc-table td {
   border: 1px solid #000000;
-  padding: 5px 8px;
+  padding: 8px 10px;
   vertical-align: middle;
-  font-size: 11pt;
+  font-size: 12.5pt;
   color: #000000;
-  height: 27px;
+  min-height: 34px;
   box-sizing: border-box;
 }
 
 .doc-table th {
   font-weight: bold;
-  font-size: 11pt;
+  font-size: 12.5pt;
   background-color: #ffffff;
   text-align: center;
-  padding: 6px 3px;
+  padding: 10px 4px;
   white-space: nowrap;
   border-top: 1.5px solid #000000;
   border-bottom: 1.5px solid #000000;
@@ -823,12 +823,13 @@ textarea:focus {
 
 .doc-table th:first-child,
 .doc-table td:first-child {
-  width: 38%;
+  width: 44%;
   text-align: left;
-  font-weight: normal;
+  font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  padding-left: 12px;
 }
 
 .doc-table th:first-child {
