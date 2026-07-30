@@ -168,6 +168,7 @@ class AttendanceApp {
     this.rowHeightInput = document.getElementById('input-row-height');
     this.rowHeightValue = document.getElementById('row-height-value');
     this.presetHeightBtns = document.querySelectorAll('.preset-height-btn');
+    this.btnAutoFitPage = document.getElementById('btn-autofit-page');
     this.newStudentInput = document.getElementById('input-new-student');
     this.bulkNamesTextarea = document.getElementById('textarea-bulk-names');
     this.searchNamesInput = document.getElementById('input-search-names');
@@ -287,6 +288,11 @@ class AttendanceApp {
           showToast(`Row height set to ${h}px`, 'info');
         });
       });
+    }
+
+    // Auto-Fit All Names to 1 Page Button
+    if (this.btnAutoFitPage) {
+      this.btnAutoFitPage.addEventListener('click', () => this.autoFitOnePage(true));
     }
 
     // Category Tabs (Girls / Boys / Custom)
@@ -637,6 +643,25 @@ class AttendanceApp {
     this.renderStudentTags();
     this.renderPreview();
     this.updateStats();
+  }
+
+  // Calculate exact row height so all student names fit on 1 single page block
+  autoFitOnePage(showNotification = true) {
+    const totalRows = (this.state.names ? this.state.names.length : 0) + (this.state.extraRows || 0);
+    if (totalRows <= 0) return;
+
+    // Available vertical space for table rows on 1 single A4 page (~820px)
+    const availableHeight = 820;
+    const targetHeight = Math.min(72, Math.max(28, Math.floor(availableHeight / totalRows)));
+
+    this.state.rowHeight = targetHeight;
+    if (this.rowHeightInput) this.rowHeightInput.value = targetHeight;
+    if (this.rowHeightValue) this.rowHeightValue.textContent = `${targetHeight}px`;
+    document.documentElement.style.setProperty('--cell-row-height', `${targetHeight}px`);
+    this.saveActiveState();
+    if (showNotification) {
+      showToast(`Auto-fitted ${totalRows} rows to 1 page (${targetHeight}px/row)`, 'success');
+    }
   }
 
   exportCSV() {
