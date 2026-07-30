@@ -11,6 +11,34 @@ const MONTH_ABBR = [
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 ];
 
+// Default User Accounts Database
+const DEFAULT_USERS = [
+  {
+    id: 'coach_burhan',
+    name: 'Burhanuddin S.',
+    username: 'coach_burhan',
+    email: 'coach.burhanuddin@aquaflow.app',
+    role: 'Verified PRO Coach',
+    avatar: '🏊‍♂️'
+  },
+  {
+    id: 'coach_sarah',
+    name: 'Sarah Jenkins',
+    username: 'coach_sarah',
+    email: 'sarah@aquaflow.app',
+    role: 'Senior Instructor',
+    avatar: '🏊‍♀️'
+  },
+  {
+    id: 'guest',
+    name: 'Guest Coach',
+    username: 'guest',
+    email: 'guest@aquaflow.app',
+    role: 'Free Account',
+    avatar: '👤'
+  }
+];
+
 // Helper: Get all dates for a given day of the week in a month
 function getDatesForDayOfWeek(year, monthIndex, dayOfWeek) {
   const dates = [];
@@ -55,6 +83,10 @@ function showToast(message, type = 'info') {
 // State Management & Main Application Controller
 class AttendanceApp {
   constructor() {
+    this.users = this.loadUsers();
+    this.activeUserId = localStorage.getItem('aquaflow_active_user_id') || 'coach_burhan';
+    this.currentUser = this.users.find(u => u.id === this.activeUserId) || this.users[0];
+
     this.presets = this.loadStoredPresets();
     this.activePresetId = 'girls-batch-4';
     this.zoomScale = 1.0;
@@ -79,7 +111,7 @@ class AttendanceApp {
       names: girlsPreset ? [...girlsPreset.names] : []
     };
 
-    // Auto-restore last edited state from localStorage if available
+    // Auto-restore last edited state from localStorage for active user
     const savedState = this.loadActiveState();
     this.state = (savedState && savedState.names && savedState.names.length > 0) 
       ? { ...defaultState, ...savedState } 
@@ -87,6 +119,7 @@ class AttendanceApp {
 
     this.initElements();
     this.applyTheme(this.currentTheme);
+    this.updateUserHeaderUI();
     this.updateControlsFromState();
     this.bindEvents();
     this.renderPresets();
@@ -96,9 +129,28 @@ class AttendanceApp {
     this.dismissSplash();
   }
 
+  loadUsers() {
+    try {
+      const stored = localStorage.getItem('aquaflow_users_db');
+      if (stored) return JSON.parse(stored);
+    } catch (e) {
+      console.warn('Could not load users database', e);
+    }
+    return [...DEFAULT_USERS];
+  }
+
+  saveUsers() {
+    try {
+      localStorage.setItem('aquaflow_users_db', JSON.stringify(this.users));
+    } catch (e) {
+      console.warn('Could not save users database', e);
+    }
+  }
+
   loadActiveState() {
     try {
-      const saved = localStorage.getItem('attendance_active_state_v1');
+      const key = `aquaflow_state_user_${this.activeUserId}`;
+      const saved = localStorage.getItem(key);
       if (saved) return JSON.parse(saved);
     } catch (e) {
       console.warn('Could not load active state from localStorage', e);
@@ -108,49 +160,22 @@ class AttendanceApp {
 
   saveActiveState() {
     try {
-      localStorage.setItem('attendance_active_state_v1', JSON.stringify(this.state));
+      const key = `aquaflow_state_user_${this.activeUserId}`;
+      localStorage.setItem(key, JSON.stringify(this.state));
+      this.triggerCloudSync();
     } catch (e) {
       console.warn('Could not save active state to localStorage', e);
     }
   }
 
-  dismissSplash() {
-    setTimeout(() => {
-      const loader = document.getElementById('loading-overlay');
-      if (loader) loader.classList.add('fade-out');
-    }, 400);
-  }
-
-  applyTheme(theme) {
-    this.currentTheme = theme;
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('app_theme', theme);
-
-    if (this.themeToggleIcon && this.themeToggleLabel) {
-      if (theme === 'dark') {
-        this.themeToggleIcon.textContent = '🌙';
-        this.themeToggleLabel.textContent = 'Dark';
-      } else {
-        this.themeToggleIcon.textContent = '☀️';
-        this.themeToggleLabel.textContent = 'Light';
-      }
-    }
-  }
-
-  toggleTheme() {
-    const nextTheme = this.currentTheme === 'light' ? 'dark' : 'light';
-    this.applyTheme(nextTheme);
-    showToast(`Switched to ${nextTheme.toUpperCase()} mode`, 'info');
-  }
-
   loadStoredPresets() {
     let presets = [...SAMPLE_PRESETS];
     try {
-      const stored = localStorage.getItem('attendance_presets_v2');
+      const key = `aquaflow_presets_user_${this.activeUserId}`;
+      const stored = localStorage.getItem(key);
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          // Merge sample names if saved preset names are empty
           presets = parsed.map(p => {
             const sample = SAMPLE_PRESETS.find(sp => sp.id === p.id || sp.category === p.category);
             if (sample && (!p.names || p.names.length === 0)) {
@@ -168,10 +193,83 @@ class AttendanceApp {
 
   saveStoredPresets() {
     try {
-      localStorage.setItem('attendance_presets_v2', JSON.stringify(this.presets));
+      const key = `aquaflow_presets_user_${this.activeUserId}`;
+      localStorage.setItem(key, JSON.stringify(this.presets));
+      this.triggerCloudSync();
     } catch (e) {
       console.warn('Could not save presets to localStorage', e);
     }
+  }
+
+  triggerCloudSync() {
+    const dot = document.querySelector('.sync-dot');
+    if (dot) {
+      dot.style.transform = 'scale(1.5)';
+      dot.style.backgroundColor = '#38bdf8';
+      setTimeout(() => {
+        dot.style.transform = 'scale(1)';
+        dot.style.backgroundColor = 'var(--accent-emerald)';
+      }, 450);
+    }
+  }
+
+  switchUser(userId) {
+    const found = this.users.find(u => u.id === userId);
+    if (!found) return;
+
+    this.activeUserId = userId;
+    this.currentUser = found;
+    localStorage.setItem('aquaflow_active_user_id', userId);
+
+    this.presets = this.loadStoredPresets();
+    const girlsPreset = this.presets.find(p => p.id === 'girls-batch-4') || SAMPLE_PRESETS[0];
+
+    const saved = this.loadActiveState();
+    if (saved && saved.names && saved.names.length > 0) {
+      this.state = saved;
+    } else {
+      this.state = {
+        title: 'Swimming attendance',
+        subtitle: 'Time : 11:00am to 11:40am',
+        batchName: 'Girls Batch 4',
+        category: 'Girls',
+        month: 6,
+        year: 2026,
+        dayOfWeek: 6,
+        useCustomDates: false,
+        customDates: [],
+        extraRows: 4,
+        rowHeight: 48,
+        excludedDates: '',
+        names: girlsPreset ? [...girlsPreset.names] : []
+      };
+    }
+
+    this.updateUserHeaderUI();
+    this.updateControlsFromState();
+    this.updateApp();
+    this.autoFitOnePage(false);
+    showToast(`Switched account to ${found.name}`, 'success');
+  }
+
+  updateUserHeaderUI() {
+    const avatarEl = document.getElementById('header-user-avatar');
+    const nameEl = document.getElementById('header-user-name');
+    if (avatarEl && this.currentUser) avatarEl.textContent = this.currentUser.avatar || '🏊‍♂️';
+    if (nameEl && this.currentUser) nameEl.textContent = this.currentUser.name || 'User';
+
+    // Update Modal User Section
+    const modalAvatar = document.getElementById('modal-user-avatar');
+    const modalName = document.getElementById('modal-user-name');
+    const modalEmail = document.getElementById('modal-user-email');
+    const modalBatches = document.getElementById('modal-stat-batches');
+    const modalStudents = document.getElementById('modal-stat-students');
+
+    if (modalAvatar) modalAvatar.textContent = this.currentUser.avatar || '🏊‍♂️';
+    if (modalName) modalName.textContent = this.currentUser.name;
+    if (modalEmail) modalEmail.textContent = this.currentUser.email || '';
+    if (modalBatches) modalBatches.textContent = this.presets.length;
+    if (modalStudents) modalStudents.textContent = this.state.names ? this.state.names.length : 0;
   }
 
   initElements() {
@@ -242,9 +340,133 @@ class AttendanceApp {
     this.btnMobileExportPDF = document.getElementById('btn-mobile-export-pdf');
     this.btnMobileExportExcel = document.getElementById('btn-mobile-export-excel');
     this.btnMobileToggleView = document.getElementById('btn-mobile-toggle-view');
+
+    // Auth & Modal Elements
+    this.btnUserProfile = document.getElementById('btn-user-profile');
+    this.authModal = document.getElementById('auth-modal');
+    this.btnCloseAuthModal = document.getElementById('btn-close-auth-modal');
+    this.tabBtnSignin = document.getElementById('tab-btn-signin');
+    this.tabBtnRegister = document.getElementById('tab-btn-register');
+    this.formSigninContainer = document.getElementById('form-signin-container');
+    this.formRegisterContainer = document.getElementById('form-register-container');
+    this.formSignin = document.getElementById('form-signin');
+    this.formRegister = document.getElementById('form-register');
+    this.btnLogout = document.getElementById('btn-logout');
+    this.demoUserBtns = document.querySelectorAll('.btn-demo-user');
   }
 
   bindEvents() {
+    // User Profile & Auth Modal
+    if (this.btnUserProfile && this.authModal) {
+      this.btnUserProfile.addEventListener('click', () => {
+        this.updateUserHeaderUI();
+        this.authModal.classList.add('active');
+      });
+    }
+
+    if (this.btnCloseAuthModal && this.authModal) {
+      this.btnCloseAuthModal.addEventListener('click', () => {
+        this.authModal.classList.remove('active');
+      });
+      this.authModal.addEventListener('click', (e) => {
+        if (e.target === this.authModal) this.authModal.classList.remove('active');
+      });
+    }
+
+    // Modal Auth Tab switching
+    if (this.tabBtnSignin && this.tabBtnRegister) {
+      this.tabBtnSignin.addEventListener('click', () => {
+        this.tabBtnSignin.classList.add('active');
+        this.tabBtnRegister.classList.remove('active');
+        this.formSigninContainer.style.display = 'block';
+        this.formRegisterContainer.style.display = 'none';
+      });
+
+      this.tabBtnRegister.addEventListener('click', () => {
+        this.tabBtnRegister.classList.add('active');
+        this.tabBtnSignin.classList.remove('active');
+        this.formRegisterContainer.style.display = 'block';
+        this.formSigninContainer.style.display = 'none';
+      });
+    }
+
+    // Demo user quick switch
+    if (this.demoUserBtns) {
+      this.demoUserBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const userId = btn.dataset.user;
+          this.switchUser(userId);
+          if (this.authModal) this.authModal.classList.remove('active');
+        });
+      });
+    }
+
+    // Sign In Form Submission
+    if (this.formSignin) {
+      this.formSignin.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const usernameVal = document.getElementById('input-login-username').value.trim().toLowerCase();
+        const found = this.users.find(u => u.username.toLowerCase() === usernameVal || u.email.toLowerCase() === usernameVal || u.id.toLowerCase() === usernameVal);
+        
+        if (found) {
+          this.switchUser(found.id);
+          if (this.authModal) this.authModal.classList.remove('active');
+        } else {
+          // If unknown username, auto-create and switch!
+          const newId = 'user_' + usernameVal.replace(/[^a-z0-9_]/g, '');
+          const newUser = {
+            id: newId,
+            name: usernameVal.charAt(0).toUpperCase() + usernameVal.slice(1),
+            username: usernameVal,
+            email: `${usernameVal}@aquaflow.app`,
+            role: 'PRO Coach',
+            avatar: '🏊‍♂️'
+          };
+          this.users.push(newUser);
+          this.saveUsers();
+          this.switchUser(newId);
+          if (this.authModal) this.authModal.classList.remove('active');
+        }
+      });
+    }
+
+    // Register Form Submission
+    if (this.formRegister) {
+      this.formRegister.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nameVal = document.getElementById('input-reg-name').value.trim();
+        const usernameVal = document.getElementById('input-reg-username').value.trim().toLowerCase();
+        const emailVal = document.getElementById('input-reg-email').value.trim();
+
+        if (!nameVal || !usernameVal) return;
+
+        const newId = 'user_' + usernameVal.replace(/[^a-z0-9_]/g, '');
+        const newUser = {
+          id: newId,
+          name: nameVal,
+          username: usernameVal,
+          email: emailVal || `${usernameVal}@aquaflow.app`,
+          role: 'Verified PRO Coach',
+          avatar: '🏊‍♂️'
+        };
+
+        this.users.push(newUser);
+        this.saveUsers();
+        this.switchUser(newId);
+        if (this.authModal) this.authModal.classList.remove('active');
+        showToast(`Account created for ${nameVal}!`, 'success');
+      });
+    }
+
+    // Logout
+    if (this.btnLogout) {
+      this.btnLogout.addEventListener('click', () => {
+        this.switchUser('guest');
+        if (this.authModal) this.authModal.classList.remove('active');
+        showToast('Logged out of account', 'info');
+      });
+    }
+
     // Mobile View Switching Tabs & Actions
     if (this.btnMobileViewEdit && this.btnMobileViewPreview) {
       this.btnMobileViewEdit.addEventListener('click', () => this.setMobileMode('edit'));

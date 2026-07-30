@@ -19,8 +19,23 @@
   <!-- Animated Splash / Loading Screen Overlay -->
   <div id="loading-overlay">
     <div class="loader-content">
-      <div class="loader-icon">🏊‍♀️</div>
-      <div class="loader-title">Attendance Sheet Studio</div>
+      <div class="loader-icon-svg">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="48" height="48" rx="14" fill="url(#loader-logo-grad)"/>
+          <path d="M12 28C14.5 28 16 26.5 18 26.5C20 26.5 21.5 28 24 28C26.5 28 28 26.5 30 26.5C32 26.5 33.5 28 36 28" stroke="white" stroke-width="3" stroke-linecap="round"/>
+          <path d="M12 34C14.5 34 16 32.5 18 32.5C20 32.5 21.5 34 24 34C26.5 34 28 32.5 30 32.5C32 32.5 33.5 34 36 34" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.7"/>
+          <circle cx="28" cy="16" r="4" fill="white"/>
+          <path d="M18 20L23 17L28 21L34 18" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <defs>
+            <linearGradient id="loader-logo-grad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#0284C7"/>
+              <stop offset="0.5" stop-color="#2563EB"/>
+              <stop offset="1" stop-color="#4F46E5"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="loader-title">AquaFlow Pro</div>
       <div class="spinner-bar"></div>
     </div>
   </div>
@@ -28,14 +43,35 @@
   <!-- App Navbar Header -->
   <header class="app-header">
     <div class="brand">
-      <div class="brand-icon">🏊‍♀️</div>
+      <div class="brand-logo-wrapper">
+        <svg class="brand-logo-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="48" height="48" rx="14" fill="url(#head-logo-grad)"/>
+          <path d="M12 28C14.5 28 16 26.5 18 26.5C20 26.5 21.5 28 24 28C26.5 28 28 26.5 30 26.5C32 26.5 33.5 28 36 28" stroke="white" stroke-width="3" stroke-linecap="round"/>
+          <path d="M12 34C14.5 34 16 32.5 18 32.5C20 32.5 21.5 34 24 34C26.5 34 28 32.5 30 32.5C32 32.5 33.5 34 36 34" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.7"/>
+          <circle cx="28" cy="16" r="4" fill="white"/>
+          <path d="M18 20L23 17L28 21L34 18" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <defs>
+            <linearGradient id="head-logo-grad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#0284C7"/>
+              <stop offset="0.5" stop-color="#2563EB"/>
+              <stop offset="1" stop-color="#4F46E5"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
       <div>
-        <h1 class="brand-title">Attendance Sheet Studio</h1>
-        <div class="brand-subtitle">Vector PDF & Attendance Generator</div>
+        <h1 class="brand-title">AquaFlow Pro</h1>
+        <div class="brand-subtitle">Attendance Studio & Vector PDF Generator</div>
       </div>
     </div>
 
     <div class="header-actions">
+      <!-- Live Sync Badge -->
+      <div class="sync-indicator" id="sync-indicator" title="All changes saved to your user account">
+        <span class="sync-dot"></span>
+        <span class="sync-text">Cloud Synced</span>
+      </div>
+
       <!-- Live Stats Bar -->
       <div class="stats-bar">
         <div class="stat-chip">
@@ -58,10 +94,17 @@
         <span id="theme-toggle-label">Light</span>
       </button>
 
+      <!-- User Account Profile Button -->
+      <button id="btn-user-profile" class="user-profile-btn" title="Manage Account & Login">
+        <span class="user-avatar" id="header-user-avatar">🏊‍♂️</span>
+        <span class="user-name" id="header-user-name">Burhanuddin S.</span>
+        <span class="user-tier-badge">PRO</span>
+      </button>
+
       <button id="btn-export-pdf" class="btn btn-primary">📄 Export PDF</button>
       <button id="btn-export-excel" class="btn btn-purple">📊 Export Excel</button>
-      <button id="btn-print-window" class="btn btn-secondary">🖨️ Print Document</button>
-      <button id="btn-export-csv" class="btn btn-emerald">📊 Export CSV</button>
+      <button id="btn-print-window" class="btn btn-secondary">🖨️ Print</button>
+      <button id="btn-export-csv" class="btn btn-emerald">📊 CSV</button>
     </div>
   </header>
 
@@ -294,6 +337,103 @@
     <button id="btn-mobile-export-pdf" class="btn btn-primary btn-mobile-action">📄 Export PDF</button>
     <button id="btn-mobile-export-excel" class="btn btn-purple btn-mobile-action">📊 Excel</button>
     <button id="btn-mobile-toggle-view" class="btn btn-secondary btn-mobile-action">👁️ Preview</button>
+  </div>
+
+  <!-- User Login & Cloud Account Modal -->
+  <div id="auth-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span class="modal-icon">👤</span>
+          <span>User Account & Cloud Workspace</span>
+        </div>
+        <button id="btn-close-auth-modal" class="icon-btn">✕</button>
+      </div>
+
+      <!-- Active User Profile Card -->
+      <div id="auth-active-user-section" class="auth-section">
+        <div class="user-card">
+          <div class="user-card-avatar" id="modal-user-avatar">🏊‍♂️</div>
+          <div class="user-card-info">
+            <h3 id="modal-user-name">Burhanuddin S.</h3>
+            <p id="modal-user-email">coach.burhanuddin@aquaflow.app</p>
+            <span class="badge badge-pro">Verified PRO Coach</span>
+          </div>
+        </div>
+
+        <div class="user-stats-grid">
+          <div class="user-stat-box">
+            <span class="stat-number" id="modal-stat-batches">2</span>
+            <span class="stat-label">Saved Batches</span>
+          </div>
+          <div class="user-stat-box">
+            <span class="stat-number" id="modal-stat-students">24</span>
+            <span class="stat-label">Total Students</span>
+          </div>
+          <div class="user-stat-box">
+            <span class="stat-number" style="color: var(--accent-emerald);">Active</span>
+            <span class="stat-label">Cloud Backup</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auth Action Tabs -->
+      <div class="auth-tabs">
+        <button class="auth-tab-btn active" id="tab-btn-signin">Sign In / Switch User</button>
+        <button class="auth-tab-btn" id="tab-btn-register">Create Account</button>
+      </div>
+
+      <!-- Sign In Form -->
+      <div id="form-signin-container" class="auth-form-container">
+        <form id="form-signin">
+          <div class="form-group">
+            <label for="input-login-username">Username or Email</label>
+            <input type="text" id="input-login-username" placeholder="e.g. coach_burhan" required>
+          </div>
+          <div class="form-group">
+            <label for="input-login-password">Password</label>
+            <input type="password" id="input-login-password" placeholder="••••••••" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;">🔐 Log In to My Account</button>
+        </form>
+
+        <div class="demo-accounts-box">
+          <label>Quick Demo Accounts:</label>
+          <div class="demo-btns">
+            <button class="btn btn-sm btn-secondary btn-demo-user" data-user="coach_burhan">🏊‍♂️ Coach Burhanuddin</button>
+            <button class="btn btn-sm btn-secondary btn-demo-user" data-user="coach_sarah">🏊‍♀️ Coach Sarah</button>
+            <button class="btn btn-sm btn-secondary btn-demo-user" data-user="guest">👤 Guest User</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Register Form -->
+      <div id="form-register-container" class="auth-form-container" style="display: none;">
+        <form id="form-register">
+          <div class="form-group">
+            <label for="input-reg-name">Full Name</label>
+            <input type="text" id="input-reg-name" placeholder="e.g. Alex Johnson" required>
+          </div>
+          <div class="form-group">
+            <label for="input-reg-username">Username</label>
+            <input type="text" id="input-reg-username" placeholder="e.g. coach_alex" required>
+          </div>
+          <div class="form-group">
+            <label for="input-reg-email">Email Address</label>
+            <input type="email" id="input-reg-email" placeholder="alex@aquaflow.app" required>
+          </div>
+          <div class="form-group">
+            <label for="input-reg-password">Password</label>
+            <input type="password" id="input-reg-password" placeholder="••••••••" required>
+          </div>
+          <button type="submit" class="btn btn-emerald" style="width: 100%; margin-top: 8px;">🚀 Create Account & Save My Data</button>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button id="btn-logout" class="btn btn-sm btn-ghost" style="color: var(--accent-pink);">🚪 Log Out Current Account</button>
+      </div>
+    </div>
   </div>
 
   <!-- Toast Notification Container -->
