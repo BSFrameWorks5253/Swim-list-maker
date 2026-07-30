@@ -167,6 +167,33 @@
   flex-direction: column;
 }
 
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.form-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.student-editor-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.search-input {
+  max-width: 170px;
+  height: 38px !important;
+  font-size: var(--fs-caption) !important;
+  padding: 0 10px !important;
+}
+
 .preview-container {
   display: flex;
   flex-direction: column;
