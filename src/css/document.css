@@ -1,0 +1,149 @@
+/* ==========================================================================
+   AQUAFLOW PRO - PRINTABLE DOCUMENT CANVAS & PRINT MEDIA STYLING
+   ========================================================================== */
+
+#pdf-document {
+  width: 794px; /* A4 width at 96 DPI (~210mm) */
+  min-height: 1123px; /* A4 height at 96 DPI (~297mm) */
+  background: #ffffff;
+  color: #000000;
+  padding: 16mm 18mm 16mm 18mm;
+  box-shadow: var(--shadow-floating);
+  border-radius: 4px;
+  transform-origin: top center;
+  transition: transform 0.2s ease;
+  box-sizing: border-box;
+}
+
+.doc-header {
+  margin-bottom: 12px;
+}
+
+.doc-title {
+  font-family: 'Helvetica', 'Arial', sans-serif;
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #000000;
+  line-height: 1.25;
+  margin-bottom: 2px;
+}
+
+.doc-subtitle {
+  font-family: 'Helvetica', 'Arial', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #000000;
+  line-height: 1.25;
+  margin-bottom: 2px;
+}
+
+.doc-batch {
+  font-family: 'Helvetica', 'Arial', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #000000;
+  margin-bottom: 8px;
+}
+
+/* Document Printable Table */
+.doc-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-family: 'Helvetica', 'Arial', sans-serif;
+}
+
+.doc-table th,
+.doc-table td {
+  border: 1px solid #000000;
+  padding: 4px 6px;
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+
+.doc-table th {
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-align: center;
+  background: #ffffff;
+  color: #000000;
+}
+
+.doc-table th:first-child,
+.doc-table td:first-child {
+  text-align: left;
+  font-weight: 500;
+  font-size: 0.85rem;
+  width: 38%;
+}
+
+.doc-table tr {
+  height: var(--cell-row-height, 52px);
+}
+
+/* Print Rules */
+@page {
+  size: A4 portrait;
+  margin: 10mm 12mm 10mm 12mm;
+}
+
+@media print {
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
+  }
+  
+  #loading-overlay,
+  .app-header,
+  .controls-sidebar,
+  .preview-toolbar,
+  .app-footer,
+  .mobile-view-tabs,
+  .mobile-sticky-bar,
+  .toast-container {
+    display: none !important;
+  }
+
+  .main-container {
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .paper-wrapper {
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  #pdf-document {
+    box-shadow: none !important;
+    padding: 0 !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    max-height: 275mm !important;
+    margin: 0 !important;
+    transform: none !important;
+    page-break-after: avoid !important;
+    page-break-before: avoid !important;
+    page-break-inside: avoid !important;
+    overflow: hidden !important;
+  }
+
+  .doc-table {
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  .doc-table tr {
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+  }
+}

@@ -1330,187 +1330,20 @@ class AttendanceApp {
     }
   }
 
+  getCurrentDates() {
+    return DateEngine.calculateSchedule(this.state);
+  }
+
   exportCSV() {
-    const dates = this.getCurrentDates();
-    let csv = ['"Name"', ...dates.map(d => `"${d}"`)].join(',') + '\n';
-    
-    this.state.names.forEach(name => {
-      const row = [`"${name.replace(/"/g, '""')}"`, ...dates.map(() => '""')];
-      csv += row.join(',') + '\n';
-    });
-
-    for (let i = 0; i < this.state.extraRows; i++) {
-      const row = ['""', ...dates.map(() => '""')];
-      csv += row.join(',') + '\n';
-    }
-
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `${this.state.batchName}_Attendance.csv`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    showToast('CSV exported successfully!', 'success');
+    ExcelExporter.exportCSV(this.state, this.getCurrentDates());
   }
 
-  // Formatted Excel (.xlsx) Export using SheetJS
   exportExcel() {
-    if (typeof XLSX === 'undefined') {
-      showToast('Excel exporter library not ready', 'error');
-      return;
-    }
-
-    const dates = this.getCurrentDates();
-    const wsData = [
-      [this.state.title || "Attendance Sheet"],
-      [this.state.subtitle || ""],
-      [this.state.batchName || ""],
-      [], // Empty row
-      ['Name', ...dates]
-    ];
-
-    // Student Names
-    this.state.names.forEach(name => {
-      wsData.push([name, ...dates.map(() => '')]);
-    });
-
-    // Extra Blank Rows
-    for (let i = 0; i < (this.state.extraRows || 0); i++) {
-      wsData.push(['', ...dates.map(() => '')]);
-    }
-
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-    // Set Column Widths (Name = 32, Dates = 14)
-    const colWidths = [{ wch: 32 }];
-    dates.forEach(() => colWidths.push({ wch: 14 }));
-    ws['!cols'] = colWidths;
-
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Attendance Sheet");
-
-    XLSX.writeFile(wb, `${this.state.batchName || 'Attendance'}_Sheet.xlsx`);
-    showToast('Formatted Excel sheet exported successfully!', 'success');
+    ExcelExporter.exportExcel(this.state, this.getCurrentDates());
   }
 
-  // Pure Crisp Vector PDF Generation Engine using jsPDF + AutoTable (Strict 1-Page Output)
   exportVectorPDF() {
-    const jsPDFLib = window.jspdf ? window.jspdf.jsPDF : (typeof jsPDF !== 'undefined' ? jsPDF : null);
-    if (!jsPDFLib) {
-      window.print();
-      return;
-    }
-
-    const doc = new jsPDFLib({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-
-    const dates = this.getCurrentDates();
-
-    // 1. Draw Headers (Exact Helvetica Bold text matching reference PDF)
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(19);
-    doc.text(this.state.title || "Swimming attendance", 16, 22);
-
-    doc.setFontSize(14.5);
-    doc.text(this.state.subtitle || "", 16, 30);
-
-    doc.setFontSize(15);
-    doc.text(this.state.batchName || "", 16, 38);
-
-    // 2. Prepare Table Data
-    const headers = [['Name', ...dates]];
-    const body = [];
-
-    // Student Names
-    this.state.names.forEach(name => {
-      body.push([name, ...dates.map(() => '')]);
-    });
-
-    // Extra Blank Rows
-    for (let i = 0; i < this.state.extraRows; i++) {
-      body.push(['', ...dates.map(() => '')]);
-    }
-
-    // 3. Define Column Widths & Alignments
-    const nameColWidth = dates.length >= 5 ? 68 : 74;
-    const remainingWidth = 178 - nameColWidth;
-    const dateColWidth = dates.length > 0 ? (remainingWidth / dates.length) : 25;
-
-    const columnStyles = {
-      0: { cellWidth: nameColWidth, halign: 'left', fontStyle: 'normal' }
-    };
-    dates.forEach((_, idx) => {
-      columnStyles[idx + 1] = { cellWidth: dateColWidth, halign: 'center' };
-    });
-
-    // 4. Calculate dynamic padding and font sizes to strictly guarantee 1 single page PDF
-    const totalPdfRows = body.length;
-    let pdfCellPaddingY = 3.5;
-    let headFontSize = dates.length >= 5 ? 10 : 11;
-    let bodyFontSize = 11;
-
-    if (totalPdfRows > 0) {
-      // Available height for body rows on 1 A4 page: ~213mm
-      const mmPerRow = 213 / totalPdfRows;
-      pdfCellPaddingY = Math.max(1.0, Math.min(7.0, (mmPerRow - 4.5) / 2));
-
-      if (totalPdfRows > 24) {
-        bodyFontSize = 9;
-        headFontSize = 9.5;
-      } else if (totalPdfRows > 18) {
-        bodyFontSize = 10;
-        headFontSize = 10;
-      } else {
-        bodyFontSize = 11;
-        headFontSize = dates.length >= 5 ? 10.5 : 11.5;
-      }
-    }
-
-    // 5. Invoke AutoTable safely across CJS / UMD module formats
-    const autoTableFunc = doc.autoTable || (window.jspdf ? window.jspdf.autoTable : null) || (window.autoTable);
-
-    if (typeof autoTableFunc === 'function') {
-      autoTableFunc.call(doc, {
-        startY: 42,
-        head: headers,
-        body: body,
-        showHead: 'everyPage',
-        pageBreak: 'avoid',
-        margin: { left: 16, right: 16, top: 16, bottom: 12 },
-        theme: 'plain',
-        styles: {
-          font: 'helvetica',
-          fontSize: bodyFontSize,
-          cellPadding: { top: pdfCellPaddingY, bottom: pdfCellPaddingY, left: 3, right: 3 },
-          lineColor: [0, 0, 0],
-          lineWidth: 0.25,
-          textColor: [0, 0, 0],
-          valign: 'middle',
-          overflow: 'linebreak'
-        },
-        headStyles: {
-          fontStyle: 'bold',
-          fontSize: headFontSize,
-          fillColor: [255, 255, 255],
-          textColor: [0, 0, 0],
-          lineWidth: 0.35,
-          lineColor: [0, 0, 0],
-          cellPadding: { top: 4, bottom: 4, left: 1.5, right: 1.5 }
-        },
-        columnStyles: columnStyles
-      });
-    } else {
-      window.print();
-      return;
-    }
-
-    doc.save(`${this.state.batchName}_Attendance.pdf`);
-    showToast('Vector PDF exported successfully!', 'success');
+    PDFExporter.exportVectorPDF(this.state, this.getCurrentDates());
   }
 }
 

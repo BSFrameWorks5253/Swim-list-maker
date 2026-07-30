@@ -1,0 +1,102 @@
+/* ==========================================================================
+   AQUAFLOW PRO - DESIGN SYSTEM TOKENS & ANIMATION ENGINE
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap');
+
+:root, [data-theme="light"] {
+  --bg-dark: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f1f5f9;
+  --bg-input: #f1f5f9;
+  
+  --border-subtle: #e2e8f0;
+  --border-focus: #0284c7;
+  --border-glow: rgba(2, 132, 199, 0.2);
+  
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-dim: #94a3b8;
+  
+  /* Vibrant Accents for Light Mode */
+  --primary-cyan: #0284c7;
+  --primary-blue: #2563eb;
+  --primary-indigo: #4f46e5;
+  --accent-pink: #db2777;
+  --accent-purple: #9333ea;
+  --accent-emerald: #059669;
+  
+  --gradient-brand: linear-gradient(135deg, #0284c7 0%, #2563eb 40%, #4f46e5 70%, #db2777 100%);
+  --gradient-btn-primary: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+  --gradient-btn-pink: linear-gradient(135deg, #db2777 0%, #ec4899 100%);
+  --gradient-btn-emerald: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  --gradient-btn-purple: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+
+  --shadow-glow: 0 0 30px rgba(2, 132, 199, 0.2);
+  --shadow-card: 0 12px 35px -6px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  --shadow-floating: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  --paper-wrapper-bg: #e2e8f0;
+
+  --radius-xl: 22px;
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  
+  --glass-backdrop: blur(20px) saturate(190%);
+}
+
+[data-theme="dark"] {
+  --bg-dark: #070a12;
+  --bg-surface: #0f172a;
+  --bg-card: rgba(15, 23, 42, 0.85);
+  --bg-card-hover: rgba(30, 41, 59, 0.85);
+  --bg-input: rgba(15, 23, 42, 0.9);
+  
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-focus: #38bdf8;
+  --border-glow: rgba(56, 189, 248, 0.35);
+  
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  
+  --primary-cyan: #38bdf8;
+  --primary-blue: #3b82f6;
+  --primary-indigo: #6366f1;
+  --accent-pink: #ec4899;
+  --accent-purple: #a855f7;
+  --accent-emerald: #10b981;
+  
+  --gradient-brand: linear-gradient(135deg, #38bdf8 0%, #6366f1 50%, #ec4899 100%);
+  --shadow-card: 0 12px 35px -6px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --shadow-floating: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+  --paper-wrapper-bg: #1e293b;
+}
+
+/* Global Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-dark);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(2, 132, 199, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(219, 39, 119, 0.06) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(124, 58, 237, 0.06) 0px, transparent 50%);
+  background-attachment: fixed;
+  color: var(--text-main);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, .brand-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
