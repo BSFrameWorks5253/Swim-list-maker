@@ -166,6 +166,7 @@ class AttendanceApp {
     this.autoScaleMobilePreview();
     this.handleEmailLinkAuth();
     this.handleGoogleRedirectResult();
+    this.initFirebaseAuthListener();
   }
 
   dismissSplash() {
@@ -230,9 +231,76 @@ class AttendanceApp {
     try {
       const key = `aquaflow_state_user_${this.activeUserId}`;
       localStorage.setItem(key, JSON.stringify(this.state));
+
+      // Push to Firestore for strictly authenticated UID
+      if (typeof firebase !== 'undefined' && firebaseDb && firebaseAuth && firebaseAuth.currentUser && firebaseAuth.currentUser.uid === this.activeUserId) {
+        firebaseDb.collection('user_workspaces').doc(this.activeUserId).set({
+          state: this.state,
+          presets: this.presets,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true }).catch(err => console.warn('Cloud sync error:', err.message));
+      }
+
       this.triggerCloudSync();
     } catch (e) {
       console.warn('Could not save active state to localStorage', e);
+    }
+  }
+
+  initFirebaseAuthListener() {
+    if (typeof firebase !== 'undefined' && firebase.auth) {
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          const userId = user.uid;
+          const userObj = {
+            id: userId,
+            name: user.displayName || (user.email ? user.email.split('@')[0] : 'PRO Coach'),
+            username: user.email ? user.email.split('@')[0] : userId,
+            email: user.email || '',
+            role: 'Firebase Verified Coach',
+            avatar: '🔥'
+          };
+
+          if (!this.users.find(u => u.id === userId)) {
+            this.users.push(userObj);
+            this.saveUsers();
+          }
+
+          this.activeUserId = userId;
+          this.currentUser = userObj;
+          localStorage.setItem('aquaflow_active_user_id', userId);
+
+          // Fetch Private Firestore Document for this exact User ID
+          if (firebaseDb) {
+            firebaseDb.collection('user_workspaces').doc(userId).get().then(doc => {
+              if (doc.exists) {
+                const data = doc.data();
+                if (data.state) this.state = data.state;
+                if (data.presets) this.presets = data.presets;
+                this.updateControlsFromState();
+                this.updateApp();
+                this.autoFitOnePage(false);
+              }
+            }).catch(e => console.warn('Firestore load:', e.message));
+          }
+
+          this.updateUserHeaderUI();
+          if (this.authModal) this.authModal.classList.remove('active');
+        } else {
+          // Mandatory login popup on first visit if not logged in
+          setTimeout(() => {
+            if (this.authModal && (!this.activeUserId || this.activeUserId === 'guest')) {
+              this.authModal.classList.add('active');
+            }
+          }, 600);
+        }
+      });
+    } else {
+      setTimeout(() => {
+        if (this.authModal && (!this.activeUserId || this.activeUserId === 'guest')) {
+          this.authModal.classList.add('active');
+        }
+      }, 600);
     }
   }
 
@@ -244,13 +312,7 @@ class AttendanceApp {
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          presets = parsed.map(p => {
-            const sample = SAMPLE_PRESETS.find(sp => sp.id === p.id || sp.category === p.category);
-            if (sample && (!p.names || p.names.length === 0)) {
-              return { ...p, names: [...sample.names] };
-            }
-            return p;
-          });
+          presets = parsed;
         }
       }
     } catch (e) {
@@ -289,28 +351,42 @@ class AttendanceApp {
     this.currentUser = found;
     localStorage.setItem('aquaflow_active_user_id', userId);
 
+    // Strictly wipe state in memory before loading user's data
+    this.state = {
+      title: 'Swimming attendance',
+      subtitle: 'Time : 11:00am to 11:40am',
+      batchName: 'Girls Batch 4',
+      category: 'Girls',
+      month: 6,
+      year: 2026,
+      dayOfWeek: 6,
+      useCustomDates: false,
+      customDates: [],
+      extraRows: 4,
+      rowHeight: 48,
+      excludedDates: '',
+      names: []
+    };
+
     this.presets = this.loadStoredPresets();
-    const girlsPreset = this.presets.find(p => p.id === 'girls-batch-4') || SAMPLE_PRESETS[0];
 
     const saved = this.loadActiveState();
-    if (saved && saved.names && saved.names.length > 0) {
+    if (saved) {
       this.state = saved;
-    } else {
-      this.state = {
-        title: 'Swimming attendance',
-        subtitle: 'Time : 11:00am to 11:40am',
-        batchName: 'Girls Batch 4',
-        category: 'Girls',
-        month: 6,
-        year: 2026,
-        dayOfWeek: 6,
-        useCustomDates: false,
-        customDates: [],
-        extraRows: 4,
-        rowHeight: 48,
-        excludedDates: '',
-        names: girlsPreset ? [...girlsPreset.names] : []
-      };
+    }
+
+    // Load private Firestore data for signed in UID
+    if (typeof firebase !== 'undefined' && firebaseDb && firebaseAuth && firebaseAuth.currentUser && firebaseAuth.currentUser.uid === userId) {
+      firebaseDb.collection('user_workspaces').doc(userId).get().then(doc => {
+        if (doc.exists) {
+          const data = doc.data();
+          if (data.state) this.state = data.state;
+          if (data.presets) this.presets = data.presets;
+          this.updateControlsFromState();
+          this.updateApp();
+          this.autoFitOnePage(false);
+        }
+      }).catch(e => console.warn('Firestore load:', e.message));
     }
 
     this.updateUserHeaderUI();

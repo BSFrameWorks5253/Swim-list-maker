@@ -1,4 +1,4 @@
-// Pre-loaded sample presets for immediate use with realistic student lists
+// Clean template presets for user account creation
 const SAMPLE_PRESETS = [
   {
     id: 'girls-batch-4',
@@ -7,49 +7,23 @@ const SAMPLE_PRESETS = [
     title: 'Swimming attendance',
     subtitle: 'Time : 11:00am to 11:40am',
     batchName: 'Girls Batch 4',
-    month: 6, // July (0-indexed: 6 = July)
+    month: 6, // July (0-indexed)
     year: 2026,
-    dayOfWeek: 6, // Saturday (0=Sun, 6=Sat)
+    dayOfWeek: 6, // Saturday (6)
     extraRows: 4,
-    names: [
-      "Aanandi Patel",
-      "Ananya Sharma",
-      "Avni Deshmukh",
-      "Diya Mehta",
-      "Ishita Kulkarni",
-      "Kavya Nair",
-      "Meera Joshi",
-      "Riya Singh",
-      "Sanjana Rao",
-      "Tanvi Bhatia",
-      "Vanya Gupta",
-      "Aarohi Verma"
-    ]
+    names: []
   },
   {
     id: 'boys-batch-4',
     name: 'Boys Batch 4',
     category: 'Boys',
     title: 'Swimming attendance',
-    subtitle: 'Time : 11:00am to 11:40am',
+    subtitle: 'Time : 11:40am to 12:20pm',
     batchName: 'Boys Batch 4',
     month: 6, // July
     year: 2026,
     dayOfWeek: 6, // Saturday
     extraRows: 4,
-    names: [
-      "Aarav Sharma",
-      "Aditya Verma",
-      "Arjun Patel",
-      "Devansh Gupta",
-      "Ishan Nair",
-      "Kabir Mehta",
-      "Rohan Joshi",
-      "Siddharth Kumar",
-      "Vivaan Singh",
-      "Yash Kulkarni",
-      "Vihaan Shah",
-      "Dhruv Agarwal"
-    ]
+    names: []
   }
 ];

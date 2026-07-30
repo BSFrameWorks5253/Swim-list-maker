@@ -7,6 +7,7 @@
 node_modules/
 dataconnect/
 package-lock.json
+firebase/
 
 # System & Logs
 *.log
