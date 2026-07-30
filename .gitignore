@@ -5,6 +5,7 @@
 
 # Node / Dependencies
 node_modules/
+dataconnect/
 package-lock.json
 
 # System & Logs
