@@ -164,6 +164,7 @@ class AttendanceApp {
     this.updateApp();
     this.autoFitOnePage(false);
     this.autoScaleMobilePreview();
+    this.handleEmailLinkAuth();
   }
 
   dismissSplash() {
@@ -419,9 +420,111 @@ class AttendanceApp {
     this.formRegister = document.getElementById('form-register');
     this.btnLogout = document.getElementById('btn-logout');
     this.demoUserBtns = document.querySelectorAll('.btn-demo-user');
+    this.btnGoogleSignin = document.getElementById('btn-google-signin');
+    this.btnMagicLink = document.getElementById('btn-magic-link');
+  }
+
+  handleEmailLinkAuth() {
+    if (typeof firebase !== 'undefined' && firebase.auth) {
+      if (firebase.auth().isSignInWithEmailLink(window.location.href)) {
+        let email = window.localStorage.getItem('aquaflow_email_for_signin');
+        if (!email) {
+          email = window.prompt('Please confirm your email address for passwordless sign in:');
+        }
+        if (email) {
+          firebase.auth().signInWithEmailLink(email, window.location.href)
+            .then((result) => {
+              window.localStorage.removeItem('aquaflow_email_for_signin');
+              const fbUser = result.user;
+              const userId = fbUser.uid;
+              const found = {
+                id: userId,
+                name: fbUser.displayName || email.split('@')[0],
+                username: email.split('@')[0],
+                email: email,
+                role: 'Magic Link Verified Coach',
+                avatar: '✉️'
+              };
+              if (!this.users.find(u => u.id === userId)) {
+                this.users.push(found);
+                this.saveUsers();
+              }
+              this.switchUser(userId);
+              showToast(`🎉 Passwordless login successful for ${email}!`, 'success');
+            })
+            .catch((err) => {
+              console.error('Email Link Login Error', err);
+              showToast('Magic Link Sign In error: ' + err.message, 'error');
+            });
+        }
+      }
+    }
   }
 
   bindEvents() {
+    // Google Sign-In Event Handler
+    if (this.btnGoogleSignin) {
+      this.btnGoogleSignin.addEventListener('click', async () => {
+        if (typeof firebase !== 'undefined' && firebase.auth) {
+          try {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+            const result = await firebase.auth().signInWithPopup(provider);
+            if (result && result.user) {
+              const fbUser = result.user;
+              const userId = fbUser.uid;
+              const found = {
+                id: userId,
+                name: fbUser.displayName || 'Google User',
+                username: fbUser.email.split('@')[0],
+                email: fbUser.email,
+                role: 'Google Verified Coach',
+                avatar: '🌐'
+              };
+              if (!this.users.find(u => u.id === userId)) {
+                this.users.push(found);
+                this.saveUsers();
+              }
+              this.switchUser(userId);
+              if (this.authModal) this.authModal.classList.remove('active');
+              showToast(`🌐 Logged in with Google as ${found.name}!`, 'success');
+            }
+          } catch (err) {
+            console.error('Google Sign In Error:', err);
+            showToast('Google Sign In: ' + err.message, 'error');
+          }
+        } else {
+          showToast('Firebase Auth SDK initializing...', 'info');
+        }
+      });
+    }
+
+    // Passwordless Email Magic Link Event Handler
+    if (this.btnMagicLink) {
+      this.btnMagicLink.addEventListener('click', async () => {
+        const emailVal = document.getElementById('input-login-username').value.trim();
+        if (!emailVal || !emailVal.includes('@')) {
+          showToast('Please enter a valid email address for Magic Link', 'warning');
+          return;
+        }
+
+        if (typeof firebase !== 'undefined' && firebase.auth) {
+          try {
+            const actionCodeSettings = {
+              url: window.location.href,
+              handleCodeInApp: true
+            };
+            await firebase.auth().sendSignInLinkToEmail(emailVal, actionCodeSettings);
+            window.localStorage.setItem('aquaflow_email_for_signin', emailVal);
+            showToast(`✉️ Passwordless Magic Link sent to ${emailVal}! Check your inbox.`, 'success');
+          } catch (err) {
+            console.error('Magic Link Error:', err);
+            showToast('Magic Link error: ' + err.message, 'error');
+          }
+        }
+      });
+    }
+
     // User Profile & Auth Modal
     if (this.btnUserProfile && this.authModal) {
       this.btnUserProfile.addEventListener('click', () => {
