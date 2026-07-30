@@ -65,8 +65,14 @@
     </div>
   </header>
 
+  <!-- Mobile View Switcher (Visible on Mobile Screens) -->
+  <div class="mobile-view-tabs" id="mobile-view-tabs">
+    <button class="mobile-tab-btn active" id="btn-mobile-view-edit">⚙️ Edit Settings</button>
+    <button class="mobile-tab-btn" id="btn-mobile-view-preview">📄 Sheet Preview</button>
+  </div>
+
   <!-- Main Grid Layout -->
-  <main class="main-container">
+  <main class="main-container mobile-mode-edit" id="main-container">
 
     <!-- Left Controls Sidebar -->
     <aside class="controls-sidebar">
@@ -282,6 +288,13 @@
       <span>Contact: <strong id="author-phone-display">+91 8369811201 </strong></span>
     </div>
   </footer>
+
+  <!-- Mobile Glassmorphic Sticky Action Bar -->
+  <div class="mobile-sticky-bar" id="mobile-sticky-bar">
+    <button id="btn-mobile-export-pdf" class="btn btn-primary btn-mobile-action">📄 Export PDF</button>
+    <button id="btn-mobile-export-excel" class="btn btn-purple btn-mobile-action">📊 Excel</button>
+    <button id="btn-mobile-toggle-view" class="btn btn-secondary btn-mobile-action">👁️ Preview</button>
+  </div>
 
   <!-- Toast Notification Container -->
   <div id="toast-container" class="toast-container"></div>

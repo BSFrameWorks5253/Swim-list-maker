@@ -92,6 +92,7 @@ class AttendanceApp {
     this.renderPresets();
     this.updateApp();
     this.autoFitOnePage(false);
+    this.autoScaleMobilePreview();
     this.dismissSplash();
   }
 
@@ -233,9 +234,40 @@ class AttendanceApp {
     this.docBatch = document.getElementById('doc-batch');
     this.docTableHeader = document.getElementById('doc-table-header');
     this.docTableBody = document.getElementById('doc-table-body');
+
+    // Mobile Elements
+    this.mainContainer = document.getElementById('main-container');
+    this.btnMobileViewEdit = document.getElementById('btn-mobile-view-edit');
+    this.btnMobileViewPreview = document.getElementById('btn-mobile-view-preview');
+    this.btnMobileExportPDF = document.getElementById('btn-mobile-export-pdf');
+    this.btnMobileExportExcel = document.getElementById('btn-mobile-export-excel');
+    this.btnMobileToggleView = document.getElementById('btn-mobile-toggle-view');
   }
 
   bindEvents() {
+    // Mobile View Switching Tabs & Actions
+    if (this.btnMobileViewEdit && this.btnMobileViewPreview) {
+      this.btnMobileViewEdit.addEventListener('click', () => this.setMobileMode('edit'));
+      this.btnMobileViewPreview.addEventListener('click', () => this.setMobileMode('preview'));
+    }
+
+    if (this.btnMobileExportPDF) {
+      this.btnMobileExportPDF.addEventListener('click', () => this.exportVectorPDF());
+    }
+
+    if (this.btnMobileExportExcel) {
+      this.btnMobileExportExcel.addEventListener('click', () => this.exportExcel());
+    }
+
+    if (this.btnMobileToggleView) {
+      this.btnMobileToggleView.addEventListener('click', () => {
+        const isEditMode = this.mainContainer && this.mainContainer.classList.contains('mobile-mode-edit');
+        this.setMobileMode(isEditMode ? 'preview' : 'edit');
+      });
+    }
+
+    window.addEventListener('resize', () => this.autoScaleMobilePreview());
+
     // Theme Switcher
     if (this.btnThemeToggle) {
       this.btnThemeToggle.addEventListener('click', () => this.toggleTheme());
@@ -500,6 +532,37 @@ class AttendanceApp {
     const rounded = Math.round(this.zoomScale * 100);
     this.zoomLevelBadge.textContent = `${rounded}%`;
     this.pdfDoc.style.transform = `scale(${this.zoomScale})`;
+  }
+
+  setMobileMode(mode) {
+    if (!this.mainContainer) return;
+    if (mode === 'preview') {
+      this.mainContainer.classList.remove('mobile-mode-edit');
+      this.mainContainer.classList.add('mobile-mode-preview');
+      if (this.btnMobileViewEdit) this.btnMobileViewEdit.classList.remove('active');
+      if (this.btnMobileViewPreview) this.btnMobileViewPreview.classList.add('active');
+      this.autoScaleMobilePreview();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      this.mainContainer.classList.remove('mobile-mode-preview');
+      this.mainContainer.classList.add('mobile-mode-edit');
+      if (this.btnMobileViewEdit) this.btnMobileViewEdit.classList.add('active');
+      if (this.btnMobileViewPreview) this.btnMobileViewPreview.classList.remove('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  autoScaleMobilePreview() {
+    if (window.innerWidth <= 768) {
+      const wrapper = document.querySelector('.paper-wrapper');
+      if (wrapper) {
+        const availableWidth = wrapper.clientWidth - 16;
+        const docWidth = 794; // ~210mm in px
+        const targetScale = Math.min(1.0, Math.max(0.38, availableWidth / docWidth));
+        this.zoomScale = parseFloat(targetScale.toFixed(2));
+        this.applyZoom();
+      }
+    }
   }
 
   getCurrentDates() {

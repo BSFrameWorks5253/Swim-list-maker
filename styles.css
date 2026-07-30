@@ -948,6 +948,15 @@ textarea:focus {
 /* ==========================================================================
    MOBILE & RESPONSIVE OPTIMIZATIONS
    ========================================================================== */
+
+/* Mobile View Tabs Switcher (Hidden on Desktop) */
+.mobile-view-tabs {
+  display: none;
+}
+.mobile-sticky-bar {
+  display: none;
+}
+
 @media (max-width: 1024px) {
   .app-header {
     padding: 0.75rem 1rem;
@@ -988,14 +997,96 @@ textarea:focus {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  /* Mobile Segment Switcher */
+  .mobile-view-tabs {
+    display: flex;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 8px 12px;
+    gap: 8px;
+    position: sticky;
+    top: 0;
+    z-index: 90;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  }
+
+  .mobile-tab-btn {
+    flex: 1;
+    padding: 10px 6px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-input);
+    color: var(--text-muted);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+    min-height: 44px;
+  }
+
+  .mobile-tab-btn.active {
+    background: var(--gradient-btn-primary);
+    color: #ffffff;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+  }
+
+  /* Mode Switching Logic for Mobile */
+  .main-container.mobile-mode-edit .preview-container {
+    display: none !important;
+  }
+
+  .main-container.mobile-mode-preview .controls-sidebar {
+    display: none !important;
+  }
+
+  .main-container.mobile-mode-preview .preview-container {
+    display: flex !important;
+    width: 100%;
+    position: static;
+  }
+
+  /* Mobile Glassmorphic Sticky Bottom Action Bar */
+  .mobile-sticky-bar {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-surface);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    border-top: 1px solid var(--border-subtle);
+    padding: 10px 14px;
+    gap: 8px;
+    z-index: 999;
+    box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .btn-mobile-action {
+    flex: 1;
+    padding: 12px 6px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    justify-content: center;
+    min-height: 46px;
+    border-radius: var(--radius-md);
+  }
+
+  body {
+    padding-bottom: 72px; /* Leave space for mobile floating bottom bar */
+  }
+
+  /* Header adjustments on mobile */
   .brand {
     justify-content: center;
     text-align: center;
   }
 
   .brand-title {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
   }
 
   .brand-subtitle {
@@ -1011,12 +1102,14 @@ textarea:focus {
   .theme-toggle-btn {
     grid-column: span 2;
     justify-content: center;
+    min-height: 42px;
   }
 
   .header-actions .btn {
-    padding: 0.55rem 0.75rem;
-    font-size: 0.8rem;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.82rem;
     width: 100%;
+    min-height: 44px;
   }
 
   .stats-bar {
@@ -1042,12 +1135,14 @@ textarea:focus {
   }
 
   .tab-switcher {
-    flex-direction: column;
-    gap: 6px;
+    flex-direction: row;
+    gap: 4px;
   }
 
   .tab-btn {
-    width: 100%;
+    padding: 10px 4px;
+    font-size: 0.8rem;
+    min-height: 44px;
   }
 
   .preview-toolbar {
@@ -1064,13 +1159,14 @@ textarea:focus {
   input[type="number"],
   select,
   textarea {
-    font-size: 16px; /* Prevents mobile browser auto-zoom on input focus */
+    font-size: 16px; /* Prevents mobile Safari auto-zoom on input focus */
+    min-height: 44px;
   }
 
   .toast-container {
     left: 16px;
     right: 16px;
-    bottom: 16px;
+    bottom: 80px;
   }
 
   .toast {
@@ -1085,6 +1181,14 @@ textarea:focus {
 
   .footer-dot {
     display: none;
+  }
+
+  /* Tactile Touch Feedback */
+  .btn:active,
+  .mobile-tab-btn:active,
+  .tab-btn:active,
+  .student-tag:active {
+    transform: scale(0.97);
   }
 }
 
