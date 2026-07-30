@@ -429,24 +429,54 @@ class AttendanceApp {
       });
     }
 
-    // Sign In Form Submission
+    // Sign In Form Submission (With Firebase Auth support)
     if (this.formSignin) {
-      this.formSignin.addEventListener('submit', (e) => {
+      this.formSignin.addEventListener('submit', async (e) => {
         e.preventDefault();
         const usernameVal = document.getElementById('input-login-username').value.trim().toLowerCase();
+        const passwordVal = document.getElementById('input-login-password') ? document.getElementById('input-login-password').value : '';
+
+        // Try Firebase Auth if email format provided
+        if (typeof firebase !== 'undefined' && firebase.auth && usernameVal.includes('@')) {
+          try {
+            const userCred = await firebase.auth().signInWithEmailAndPassword(usernameVal, passwordVal);
+            if (userCred && userCred.user) {
+              const fbUser = userCred.user;
+              const userId = fbUser.uid;
+              const found = {
+                id: userId,
+                name: fbUser.displayName || fbUser.email.split('@')[0],
+                username: fbUser.email.split('@')[0],
+                email: fbUser.email,
+                role: 'Firebase Verified Coach',
+                avatar: '🔥'
+              };
+              if (!this.users.find(u => u.id === userId)) {
+                this.users.push(found);
+                this.saveUsers();
+              }
+              this.switchUser(userId);
+              if (this.authModal) this.authModal.classList.remove('active');
+              showToast(`🔥 Logged in as ${found.name}`, 'success');
+              return;
+            }
+          } catch (fbErr) {
+            console.info('Firebase auth fallback to local session', fbErr.message);
+          }
+        }
+
+        // Local Auth Fallback
         const found = this.users.find(u => u.username.toLowerCase() === usernameVal || u.email.toLowerCase() === usernameVal || u.id.toLowerCase() === usernameVal);
-        
         if (found) {
           this.switchUser(found.id);
           if (this.authModal) this.authModal.classList.remove('active');
         } else {
-          // If unknown username, auto-create and switch!
           const newId = 'user_' + usernameVal.replace(/[^a-z0-9_]/g, '');
           const newUser = {
             id: newId,
             name: usernameVal.charAt(0).toUpperCase() + usernameVal.slice(1),
             username: usernameVal,
-            email: `${usernameVal}@aquaflow.app`,
+            email: usernameVal.includes('@') ? usernameVal : `${usernameVal}@aquaflow.app`,
             role: 'PRO Coach',
             avatar: '🏊‍♂️'
           };
@@ -458,16 +488,45 @@ class AttendanceApp {
       });
     }
 
-    // Register Form Submission
+    // Register Form Submission (With Firebase Auth support)
     if (this.formRegister) {
-      this.formRegister.addEventListener('submit', (e) => {
+      this.formRegister.addEventListener('submit', async (e) => {
         e.preventDefault();
         const nameVal = document.getElementById('input-reg-name').value.trim();
         const usernameVal = document.getElementById('input-reg-username').value.trim().toLowerCase();
         const emailVal = document.getElementById('input-reg-email').value.trim();
+        const passwordVal = document.getElementById('input-reg-password') ? document.getElementById('input-reg-password').value : '';
 
         if (!nameVal || !usernameVal) return;
 
+        // Try Firebase Auth Registration if email & password provided
+        if (typeof firebase !== 'undefined' && firebase.auth && emailVal && passwordVal.length >= 6) {
+          try {
+            const userCred = await firebase.auth().createUserWithEmailAndPassword(emailVal, passwordVal);
+            if (userCred && userCred.user) {
+              await userCred.user.updateProfile({ displayName: nameVal });
+              const userId = userCred.user.uid;
+              const newUser = {
+                id: userId,
+                name: nameVal,
+                username: usernameVal,
+                email: emailVal,
+                role: 'Firebase Verified Coach',
+                avatar: '🔥'
+              };
+              this.users.push(newUser);
+              this.saveUsers();
+              this.switchUser(userId);
+              if (this.authModal) this.authModal.classList.remove('active');
+              showToast(`🔥 Firebase account created for ${nameVal}!`, 'success');
+              return;
+            }
+          } catch (fbErr) {
+            console.info('Firebase registration fallback to local workspace', fbErr.message);
+          }
+        }
+
+        // Local Workspace Registration Fallback
         const newId = 'user_' + usernameVal.replace(/[^a-z0-9_]/g, '');
         const newUser = {
           id: newId,

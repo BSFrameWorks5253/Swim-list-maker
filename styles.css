@@ -733,6 +733,8 @@ label {
 
 input[type="text"],
 input[type="number"],
+input[type="email"],
+input[type="password"],
 select,
 textarea {
   background: var(--bg-input);
@@ -1431,6 +1433,8 @@ textarea:focus {
 
   input[type="text"],
   input[type="number"],
+  input[type="email"],
+  input[type="password"],
   select,
   textarea {
     font-size: 16px; /* Prevents mobile Safari auto-zoom on input focus */
