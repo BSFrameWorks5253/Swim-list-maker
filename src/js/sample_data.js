@@ -1,4 +1,7 @@
-// Compatibility shim for sample presets
+// ==============================================================================
+// AQUAFLOW PRO - DEFAULT TEMPLATE PRESETS DATA
+// ==============================================================================
+
 const SAMPLE_PRESETS = [
   {
     id: 'girls-batch-4',

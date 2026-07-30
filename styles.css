@@ -1,8 +1,8 @@
 /* ==========================================================================
-   ATTENDANCE SHEET STUDIO - MAIN STYLESHEET MANIFEST
+   AQUAFLOW PRO - MASTER STYLESHEET MANIFEST
    ========================================================================== */
 
-@import url('./src/css/variables.css');
+@import url('./src/css/theme_variables.css');
 @import url('./src/css/components.css');
 @import url('./src/css/layout.css');
-@import url('./src/css/document.css');
+@import url('./src/css/printable_sheet.css');
