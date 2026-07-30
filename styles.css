@@ -828,14 +828,16 @@ textarea:focus {
 
 .doc-table th:first-child,
 .doc-table td:first-child {
-  width: 35%;
+  width: 42%;
   text-align: left;
   font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow: visible;
+  white-space: normal;
+  word-break: break-word;
   padding-left: 10px;
-  font-size: 12.5pt;
+  padding-right: 6px;
+  font-size: 12pt;
+  line-height: 1.25;
 }
 
 .doc-table th:first-child {
@@ -1070,11 +1072,11 @@ textarea:focus {
 }
 
 /* ==========================================================================
-   PRINT RULES
+   PRINT RULES (STRICT 1-PAGE OUTPUT)
    ========================================================================== */
 @page {
   size: A4 portrait;
-  margin: 12mm 15mm 12mm 15mm;
+  margin: 10mm 12mm 10mm 12mm;
 }
 
 @media print {
@@ -1083,8 +1085,9 @@ textarea:focus {
     color: #000000 !important;
     padding: 0 !important;
     margin: 0 !important;
-    height: auto !important;
-    overflow: visible !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
   }
   
   #loading-overlay,
@@ -1104,18 +1107,34 @@ textarea:focus {
     width: 100% !important;
   }
 
+  .paper-wrapper {
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
   #pdf-document {
     box-shadow: none !important;
     padding: 0 !important;
     width: 100% !important;
-    min-height: auto !important;
+    min-height: 0 !important;
+    max-height: 275mm !important;
     margin: 0 !important;
     transform: none !important;
     page-break-after: avoid !important;
+    page-break-before: avoid !important;
     page-break-inside: avoid !important;
+    overflow: hidden !important;
+  }
+
+  .doc-table {
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
   }
 
   .doc-table tr {
     page-break-inside: avoid !important;
+    page-break-after: avoid !important;
   }
 }
+

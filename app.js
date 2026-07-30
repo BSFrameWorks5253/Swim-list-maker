@@ -62,6 +62,7 @@ class AttendanceApp {
     this.currentTheme = localStorage.getItem('app_theme') || 'light';
     
     // Default Fallback State
+    const girlsPreset = this.presets.find(p => p.id === 'girls-batch-4') || SAMPLE_PRESETS[0];
     const defaultState = {
       title: 'Swimming attendance',
       subtitle: 'Time : 11:00am to 11:40am',
@@ -73,14 +74,16 @@ class AttendanceApp {
       useCustomDates: false,
       customDates: [],
       extraRows: 4,
-      rowHeight: 52,
+      rowHeight: 48,
       excludedDates: '',
-      names: []
+      names: girlsPreset ? [...girlsPreset.names] : []
     };
 
     // Auto-restore last edited state from localStorage if available
     const savedState = this.loadActiveState();
-    this.state = savedState ? { ...defaultState, ...savedState } : defaultState;
+    this.state = (savedState && savedState.names && savedState.names.length > 0) 
+      ? { ...defaultState, ...savedState } 
+      : defaultState;
 
     this.initElements();
     this.applyTheme(this.currentTheme);
@@ -88,6 +91,7 @@ class AttendanceApp {
     this.bindEvents();
     this.renderPresets();
     this.updateApp();
+    this.autoFitOnePage(false);
     this.dismissSplash();
   }
 
@@ -139,13 +143,26 @@ class AttendanceApp {
   }
 
   loadStoredPresets() {
+    let presets = [...SAMPLE_PRESETS];
     try {
       const stored = localStorage.getItem('attendance_presets_v2');
-      if (stored) return JSON.parse(stored);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Merge sample names if saved preset names are empty
+          presets = parsed.map(p => {
+            const sample = SAMPLE_PRESETS.find(sp => sp.id === p.id || sp.category === p.category);
+            if (sample && (!p.names || p.names.length === 0)) {
+              return { ...p, names: [...sample.names] };
+            }
+            return p;
+          });
+        }
+      }
     } catch (e) {
       console.warn('Could not load presets from localStorage', e);
     }
-    return [...SAMPLE_PRESETS];
+    return presets;
   }
 
   saveStoredPresets() {
@@ -265,6 +282,7 @@ class AttendanceApp {
       this.saveActiveState();
       this.renderPreview();
       this.updateStats();
+      this.autoFitOnePage(false);
     });
 
     // Row Height / Cell Spacing Slider
@@ -307,13 +325,25 @@ class AttendanceApp {
         this.categoryTabs.forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
         this.state.category = cat;
-        this.saveActiveState();
-        
-        // Find matching preset or update header label
-        const match = this.presets.find(p => p.category.toLowerCase() === cat.toLowerCase());
-        if (match) {
-          this.loadPreset(match.id);
+
+        if (cat === 'Girls') {
+          const match = this.presets.find(p => p.id === 'girls-batch-4' || p.category === 'Girls') || SAMPLE_PRESETS[0];
+          this.activePresetId = match ? match.id : 'girls-batch-4';
+          this.state.batchName = match ? (match.batchName || match.name) : 'Girls Batch 4';
+          this.state.names = match && match.names && match.names.length > 0 ? [...match.names] : [...SAMPLE_PRESETS[0].names];
+        } else if (cat === 'Boys') {
+          const match = this.presets.find(p => p.id === 'boys-batch-4' || p.category === 'Boys') || SAMPLE_PRESETS[1];
+          this.activePresetId = match ? match.id : 'boys-batch-4';
+          this.state.batchName = match ? (match.batchName || match.name) : 'Boys Batch 4';
+          this.state.names = match && match.names && match.names.length > 0 ? [...match.names] : [...SAMPLE_PRESETS[1].names];
+        } else if (cat === 'Custom') {
+          this.state.batchName = 'Custom Batch';
         }
+
+        this.updateControlsFromState();
+        this.updateApp();
+        this.autoFitOnePage(false);
+        showToast(`Switched to ${this.state.batchName}`, 'info');
       });
     });
 
@@ -324,6 +354,7 @@ class AttendanceApp {
         this.state.names.push(name);
         this.newStudentInput.value = '';
         this.updateApp();
+        this.autoFitOnePage(false);
         showToast(`Added "${name}" to the list`, 'success');
       }
     };
@@ -341,6 +372,7 @@ class AttendanceApp {
         this.state.names = [...this.state.names, ...parsed];
         this.bulkNamesTextarea.value = '';
         this.updateApp();
+        this.autoFitOnePage(false);
         showToast(`Added ${parsed.length} student names!`, 'success');
       }
     });
@@ -494,6 +526,7 @@ class AttendanceApp {
 
     this.updateControlsFromState();
     this.updateApp();
+    this.autoFitOnePage(false);
     showToast(`Loaded "${preset.name}"`, 'info');
   }
 
@@ -516,7 +549,7 @@ class AttendanceApp {
     this.extraRowsInput.value = this.state.extraRows;
     if (this.excludeDatesInput) this.excludeDatesInput.value = this.state.excludedDates || '';
 
-    const currentHeight = this.state.rowHeight || 52;
+    const currentHeight = this.state.rowHeight || 48;
     if (this.rowHeightInput) this.rowHeightInput.value = currentHeight;
     if (this.rowHeightValue) this.rowHeightValue.textContent = `${currentHeight}px`;
     document.documentElement.style.setProperty('--cell-row-height', `${currentHeight}px`);
@@ -601,6 +634,7 @@ class AttendanceApp {
       tag.querySelector('.btn-remove-name').addEventListener('click', () => {
         this.state.names.splice(index, 1);
         this.updateApp();
+        this.autoFitOnePage(false);
       });
 
       this.studentTagsEl.appendChild(tag);
@@ -669,9 +703,10 @@ class AttendanceApp {
     const totalRows = (this.state.names ? this.state.names.length : 0) + (this.state.extraRows || 0);
     if (totalRows <= 0) return;
 
-    // Available vertical space for table rows on 1 single A4 page (~820px)
-    const availableHeight = 820;
-    const targetHeight = Math.min(72, Math.max(28, Math.floor(availableHeight / totalRows)));
+    // Available vertical space for table rows on 1 single printable A4 page (~710px inside printable area)
+    const availableHeight = 710;
+    const computedHeight = Math.floor(availableHeight / totalRows);
+    const targetHeight = Math.min(65, Math.max(24, computedHeight));
 
     this.state.rowHeight = targetHeight;
     if (this.rowHeightInput) this.rowHeightInput.value = targetHeight;
@@ -749,7 +784,7 @@ class AttendanceApp {
     showToast('Formatted Excel sheet exported successfully!', 'success');
   }
 
-  // Pure Crisp Vector PDF Generation Engine using jsPDF + AutoTable
+  // Pure Crisp Vector PDF Generation Engine using jsPDF + AutoTable (Strict 1-Page Output)
   exportVectorPDF() {
     const jsPDFLib = window.jspdf ? window.jspdf.jsPDF : (typeof jsPDF !== 'undefined' ? jsPDF : null);
     if (!jsPDFLib) {
@@ -791,10 +826,9 @@ class AttendanceApp {
     }
 
     // 3. Define Column Widths & Alignments
-    const nameColWidth = dates.length >= 5 ? 60 : 68;
+    const nameColWidth = dates.length >= 5 ? 68 : 74;
     const remainingWidth = 178 - nameColWidth;
     const dateColWidth = dates.length > 0 ? (remainingWidth / dates.length) : 25;
-    const headFontSize = dates.length >= 5 ? 10.5 : 12;
 
     const columnStyles = {
       0: { cellWidth: nameColWidth, halign: 'left', fontStyle: 'normal' }
@@ -803,23 +837,45 @@ class AttendanceApp {
       columnStyles[idx + 1] = { cellWidth: dateColWidth, halign: 'center' };
     });
 
-    // 4. Invoke AutoTable safely across CJS / UMD module formats
-    const autoTableFunc = doc.autoTable || (window.jspdf ? window.jspdf.autoTable : null) || (window.autoTable);
+    // 4. Calculate dynamic padding and font sizes to strictly guarantee 1 single page PDF
+    const totalPdfRows = body.length;
+    let pdfCellPaddingY = 3.5;
+    let headFontSize = dates.length >= 5 ? 10 : 11;
+    let bodyFontSize = 11;
 
-    const pdfTopBottomPadding = Math.max(2.5, ((this.state.rowHeight || 52) - 16) / 4);
+    if (totalPdfRows > 0) {
+      // Available height for body rows on 1 A4 page: ~213mm
+      const mmPerRow = 213 / totalPdfRows;
+      pdfCellPaddingY = Math.max(1.0, Math.min(7.0, (mmPerRow - 4.5) / 2));
+
+      if (totalPdfRows > 24) {
+        bodyFontSize = 9;
+        headFontSize = 9.5;
+      } else if (totalPdfRows > 18) {
+        bodyFontSize = 10;
+        headFontSize = 10;
+      } else {
+        bodyFontSize = 11;
+        headFontSize = dates.length >= 5 ? 10.5 : 11.5;
+      }
+    }
+
+    // 5. Invoke AutoTable safely across CJS / UMD module formats
+    const autoTableFunc = doc.autoTable || (window.jspdf ? window.jspdf.autoTable : null) || (window.autoTable);
 
     if (typeof autoTableFunc === 'function') {
       autoTableFunc.call(doc, {
-        startY: 44,
+        startY: 42,
         head: headers,
         body: body,
         showHead: 'everyPage',
-        margin: { left: 16, right: 16, top: 16, bottom: 16 },
+        pageBreak: 'avoid',
+        margin: { left: 16, right: 16, top: 16, bottom: 12 },
         theme: 'plain',
         styles: {
           font: 'helvetica',
-          fontSize: 12,
-          cellPadding: { top: pdfTopBottomPadding, bottom: pdfTopBottomPadding, left: 3, right: 3 },
+          fontSize: bodyFontSize,
+          cellPadding: { top: pdfCellPaddingY, bottom: pdfCellPaddingY, left: 3, right: 3 },
           lineColor: [0, 0, 0],
           lineWidth: 0.25,
           textColor: [0, 0, 0],
@@ -833,7 +889,7 @@ class AttendanceApp {
           textColor: [0, 0, 0],
           lineWidth: 0.35,
           lineColor: [0, 0, 0],
-          cellPadding: { top: 5, bottom: 5, left: 1.5, right: 1.5 }
+          cellPadding: { top: 4, bottom: 4, left: 1.5, right: 1.5 }
         },
         columnStyles: columnStyles
       });
