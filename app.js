@@ -165,6 +165,7 @@ class AttendanceApp {
     this.autoFitOnePage(false);
     this.autoScaleMobilePreview();
     this.handleEmailLinkAuth();
+    this.handleGoogleRedirectResult();
   }
 
   dismissSplash() {
@@ -461,23 +462,66 @@ class AttendanceApp {
     }
   }
 
+  handleGoogleRedirectResult() {
+    if (typeof firebase !== 'undefined' && firebase.auth) {
+      firebase.auth().getRedirectResult()
+        .then((result) => {
+          if (result && result.user) {
+            const fbUser = result.user;
+            const userId = fbUser.uid;
+            const found = {
+              id: userId,
+              name: fbUser.displayName || 'Google User',
+              username: fbUser.email ? fbUser.email.split('@')[0] : 'google_user',
+              email: fbUser.email || '',
+              role: 'Google Verified Coach',
+              avatar: '🌐'
+            };
+            if (!this.users.find(u => u.id === userId)) {
+              this.users.push(found);
+              this.saveUsers();
+            }
+            this.switchUser(userId);
+            showToast(`🌐 Logged in with Google as ${found.name}!`, 'success');
+          }
+        })
+        .catch((err) => {
+          if (err.code !== 'auth/null-user') {
+            console.warn('Google Redirect Auth:', err.message);
+          }
+        });
+    }
+  }
+
   bindEvents() {
-    // Google Sign-In Event Handler
+    // Google Sign-In Event Handler (With Mobile Redirect Fallback)
     if (this.btnGoogleSignin) {
       this.btnGoogleSignin.addEventListener('click', async () => {
         if (typeof firebase !== 'undefined' && firebase.auth) {
           try {
             const provider = new firebase.auth.GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
-            const result = await firebase.auth().signInWithPopup(provider);
+
+            let result;
+            try {
+              result = await firebase.auth().signInWithPopup(provider);
+            } catch (popErr) {
+              if (popErr.code === 'auth/popup-blocked' || popErr.code === 'auth/popup-closed-by-user') {
+                showToast('Opening Google Sign-In redirect...', 'info');
+                await firebase.auth().signInWithRedirect(provider);
+                return;
+              }
+              throw popErr;
+            }
+
             if (result && result.user) {
               const fbUser = result.user;
               const userId = fbUser.uid;
               const found = {
                 id: userId,
                 name: fbUser.displayName || 'Google User',
-                username: fbUser.email.split('@')[0],
-                email: fbUser.email,
+                username: fbUser.email ? fbUser.email.split('@')[0] : 'google_user',
+                email: fbUser.email || '',
                 role: 'Google Verified Coach',
                 avatar: '🌐'
               };

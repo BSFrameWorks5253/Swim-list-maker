@@ -1,7 +1,23 @@
 {
+  "name": "aquaflow-pro",
+  "version": "1.2.0",
+  "description": "AquaFlow Pro - Cloud Attendance Studio & Vector PDF Generator",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "deploy": "firebase deploy",
+    "publish": "python publish.py"
+  },
+  "keywords": [
+    "attendance",
+    "pdf-generator",
+    "swimming-academy",
+    "firebase-auth",
+    "firestore"
+  ],
+  "author": "Burhanuddin Sounasath",
+  "license": "MIT",
   "dependencies": {
-    "@dataconnect/generated": "file:src/dataconnect-generated",
-    "jspdf": "^4.2.1",
-    "jspdf-autotable": "^5.0.8"
+    "firebase": "^10.8.0"
   }
 }
