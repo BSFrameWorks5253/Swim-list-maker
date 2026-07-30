@@ -372,9 +372,9 @@ h1, h2, h3, h4, .brand-title {
    ========================================================================== */
 .main-container {
   display: grid;
-  grid-template-columns: 490px 1fr;
-  gap: 1.75rem;
-  padding: 1.5rem 2rem;
+  grid-template-columns: 460px 1fr;
+  gap: 1.5rem;
+  padding: 1.25rem 2rem;
   flex: 1;
   max-width: 1920px;
   margin: 0 auto;
@@ -390,17 +390,15 @@ h1, h2, h3, h4, .brand-title {
 .controls-sidebar {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-  max-height: calc(100vh - 110px);
-  overflow-y: auto;
-  padding-right: 6px;
+  gap: 1rem;
+  padding-right: 2px;
 }
 
 .panel-card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
-  padding: 1.25rem 1.4rem;
+  padding: 1.1rem 1.25rem;
   box-shadow: var(--shadow-card);
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -681,6 +679,22 @@ textarea:focus {
   background: rgba(2, 132, 199, 0.12);
 }
 
+/* Custom Smooth Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
 /* ==========================================================================
    PREVIEW CANVAS & ZOOM CONTROLS
    ========================================================================== */
@@ -689,6 +703,9 @@ textarea:focus {
   flex-direction: column;
   gap: 1rem;
   align-items: center;
+  position: sticky;
+  top: 85px;
+  align-self: start;
 }
 
 .preview-toolbar {
