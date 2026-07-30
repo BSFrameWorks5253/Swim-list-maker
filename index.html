@@ -6,6 +6,10 @@
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>AquaFlow Pro - Attendance Studio & PDF Generator</title>
+  <link rel="stylesheet" href="src/css/theme_variables.css">
+  <link rel="stylesheet" href="src/css/components.css">
+  <link rel="stylesheet" href="src/css/layout.css">
+  <link rel="stylesheet" href="src/css/printable_sheet.css">
   <link rel="stylesheet" href="styles.css">
   <!-- Google Fonts: Plus Jakarta Sans & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -52,6 +56,16 @@
       </div>
     </div>
   </div>
+  <script>
+    // Fail-safe: Ensure splash screen overlay is never stuck
+    setTimeout(function() {
+      var loader = document.getElementById('loading-overlay');
+      if (loader) {
+        loader.classList.add('fade-out');
+        setTimeout(function() { loader.style.display = 'none'; }, 300);
+      }
+    }, 450);
+  </script>
 
   <!-- App Navbar Header -->
   <header class="app-header">
