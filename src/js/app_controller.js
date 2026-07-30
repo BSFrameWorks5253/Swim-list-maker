@@ -97,6 +97,9 @@ class AttendanceApp {
   }
 
   applyTheme(theme) {
+    if (!theme) {
+      theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    }
     this.currentTheme = theme;
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('app_theme', theme);

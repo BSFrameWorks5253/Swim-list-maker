@@ -1,83 +1,172 @@
 /* ==========================================================================
-   AQUAFLOW PRO - 5000X DESIGN SYSTEM & LUXURY VISUAL TOKENS
+   UNIVERSAL WEBSITE DESIGN SYSTEM V1.0 - TOKENS & THEMING ENGINE
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 :root, [data-theme="light"] {
-  --bg-dark: #f6f9fc;
-  --bg-surface: #ffffff;
-  --bg-card: rgba(255, 255, 255, 0.92);
-  --bg-card-hover: #f1f5f9;
-  --bg-input: #f1f5f9;
+  /* Background Colors */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F8F9FB;
+  --bg-tertiary: #F1F3F6;
+  --bg-card: #FFFFFF;
+  --bg-hover: #F5F6F8;
+  --border-color: #E4E7EC;
+  --divider-color: #ECEFF3;
   
-  --border-subtle: rgba(226, 232, 240, 0.9);
-  --border-focus: #0284c7;
-  --border-glow: rgba(2, 132, 199, 0.3);
+  /* Text Colors */
+  --text-primary: #111827;
+  --text-secondary: #4B5563;
+  --text-muted: #6B7280;
+  --text-disabled: #9CA3AF;
+  --text-inverse: #FFFFFF;
   
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --text-dim: #94a3b8;
-  
-  /* Electric Colors */
-  --primary-cyan: #0284c7;
-  --primary-blue: #2563eb;
-  --primary-indigo: #4f46e5;
-  --accent-pink: #db2777;
-  --accent-purple: #9333ea;
-  --accent-emerald: #059669;
-  
-  /* Sleek Gradients */
-  --gradient-brand: linear-gradient(135deg, #0284c7 0%, #2563eb 35%, #6366f1 70%, #db2777 100%);
-  --gradient-card-glow: radial-gradient(circle at 50% 0%, rgba(2, 132, 199, 0.08) 0%, transparent 70%);
-  --gradient-btn-primary: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
-  --gradient-btn-pink: linear-gradient(135deg, #db2777 0%, #ec4899 100%);
-  --gradient-btn-emerald: linear-gradient(135deg, #059669 0%, #10b981 100%);
-  --gradient-btn-purple: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+  /* Brand & Accent Colors */
+  --brand-primary: #4F46E5;
+  --brand-primary-hover: #4338CA;
+  --brand-secondary: #06B6D4;
+  --accent: #F97316;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --info: #3B82F6;
 
-  --shadow-glow: 0 0 40px rgba(2, 132, 199, 0.25);
-  --shadow-card: 0 20px 45px -10px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
-  --shadow-floating: 0 30px 80px -15px rgba(0, 0, 0, 0.15);
-  --paper-wrapper-bg: linear-gradient(180deg, #cbd5e1 0%, #e2e8f0 100%);
+  /* Form Controls */
+  --input-bg: #F8F9FB;
+  --input-border: #E4E7EC;
 
-  --radius-xl: 24px;
-  --radius-lg: 16px;
-  --radius-md: 12px;
-  --radius-sm: 8px;
-  
-  --glass-backdrop: blur(24px) saturate(200%);
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.12);
+  --shadow-hover: 0 24px 70px rgba(0, 0, 0, 0.15);
+
+  --paper-wrapper-bg: #F1F3F6;
 }
 
 [data-theme="dark"] {
-  --bg-dark: #060913;
-  --bg-surface: #0e1629;
-  --bg-card: rgba(14, 22, 41, 0.88);
-  --bg-card-hover: rgba(26, 38, 66, 0.88);
-  --bg-input: rgba(14, 22, 41, 0.95);
+  /* Background Colors */
+  --bg-primary: #0F172A;
+  --bg-secondary: #111827;
+  --bg-tertiary: #1E293B;
+  --bg-card: #1A2335;
+  --bg-hover: #243045;
+  --border-color: #334155;
+  --divider-color: #2B3648;
   
-  --border-subtle: rgba(255, 255, 255, 0.09);
-  --border-focus: #38bdf8;
-  --border-glow: rgba(56, 189, 248, 0.45);
+  /* Text Colors */
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --text-disabled: #64748B;
+  --text-inverse: #0F172A;
   
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --text-dim: #64748b;
-  
-  --primary-cyan: #38bdf8;
-  --primary-blue: #3b82f6;
-  --primary-indigo: #6366f1;
-  --accent-pink: #ec4899;
-  --accent-purple: #a855f7;
-  --accent-emerald: #10b981;
-  
-  --gradient-brand: linear-gradient(135deg, #38bdf8 0%, #6366f1 50%, #ec4899 100%);
-  --gradient-card-glow: radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.12) 0%, transparent 70%);
-  --shadow-card: 0 20px 45px -10px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08);
-  --shadow-floating: 0 35px 90px -15px rgba(0, 0, 0, 0.9);
-  --paper-wrapper-bg: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+  /* Brand & Accent Colors */
+  --brand-primary: #6366F1;
+  --brand-primary-hover: #818CF8;
+  --brand-secondary: #22D3EE;
+  --accent: #FB923C;
+  --success: #34D399;
+  --warning: #FBBF24;
+  --danger: #F87171;
+  --info: #60A5FA;
+
+  /* Form Controls */
+  --input-bg: #111827;
+  --input-border: #334155;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.65);
+  --shadow-hover: 0 24px 70px rgba(0, 0, 0, 0.8);
+
+  --paper-wrapper-bg: #111827;
 }
 
-/* Global Reset & Typography */
+/* System Preference Fallback (Auto-detect) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg-primary: #0F172A;
+    --bg-secondary: #111827;
+    --bg-tertiary: #1E293B;
+    --bg-card: #1A2335;
+    --bg-hover: #243045;
+    --border-color: #334155;
+    --divider-color: #2B3648;
+    --text-primary: #F8FAFC;
+    --text-secondary: #CBD5E1;
+    --text-muted: #94A3B8;
+    --text-disabled: #64748B;
+    --text-inverse: #0F172A;
+    --brand-primary: #6366F1;
+    --brand-primary-hover: #818CF8;
+    --brand-secondary: #22D3EE;
+    --accent: #FB923C;
+    --success: #34D399;
+    --warning: #FBBF24;
+    --danger: #F87171;
+    --info: #60A5FA;
+    --input-bg: #111827;
+    --input-border: #334155;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.65);
+    --shadow-hover: 0 24px 70px rgba(0, 0, 0, 0.8);
+    --paper-wrapper-bg: #111827;
+  }
+}
+
+/* Common System Design System Variables */
+:root {
+  /* Font Families */
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-alt: 'Manrope', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Font Sizes */
+  --fs-display: 64px;
+  --fs-hero: 48px;
+  --fs-h1: 40px;
+  --fs-h2: 32px;
+  --fs-h3: 28px;
+  --fs-h4: 24px;
+  --fs-h5: 20px;
+  --fs-h6: 18px;
+  --fs-body-lg: 18px;
+  --fs-body: 16px;
+  --fs-small: 14px;
+  --fs-caption: 12px;
+  --fs-tiny: 11px;
+
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-card: 20px;
+  --radius-pill: 999px;
+
+  /* Component Heights */
+  --height-input: 48px;
+  --height-button: 48px;
+  --height-button-lg: 56px;
+  --height-button-sm: 40px;
+  --height-navbar: 72px;
+
+  /* Backdrop Blurs */
+  --blur-card: blur(10px);
+  --blur-nav: blur(20px);
+  --blur-modal: blur(30px);
+
+  /* Transitions */
+  --transition-fast: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-hover: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-modal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-page: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reset & Global Base */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -85,22 +174,21 @@
 }
 
 body {
-  background-color: var(--bg-dark);
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(2, 132, 199, 0.12) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(219, 39, 119, 0.1) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(124, 58, 237, 0.1) 0px, transparent 50%);
-  background-attachment: fixed;
-  color: var(--text-main);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: var(--font-primary);
+  font-size: var(--fs-body);
+  line-height: 1.5;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color var(--transition-page), color var(--transition-page);
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4, .brand-title, .panel-title {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-alt);
+  color: var(--text-primary);
+  font-weight: 700;
 }
