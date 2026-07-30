@@ -495,6 +495,67 @@
     </div>
   </div>
 
+  <!-- Native Mobile Bottom Navigation Dock -->
+  <nav class="mobile-nav-dock">
+    <button class="mobile-nav-item active" id="mobile-nav-controls" title="Edit Controls">
+      <span class="mobile-nav-icon">⚙️</span>
+      <span class="mobile-nav-label">Controls</span>
+    </button>
+    <button class="mobile-nav-item" id="mobile-nav-preview" title="Sheet Preview">
+      <span class="mobile-nav-icon">📄</span>
+      <span class="mobile-nav-label">Preview</span>
+    </button>
+    <button class="mobile-nav-item mobile-nav-export-fab" id="mobile-nav-export" title="Export Sheet">
+      <span class="mobile-nav-icon">📥</span>
+      <span class="mobile-nav-label">Export</span>
+    </button>
+    <button class="mobile-nav-item" id="mobile-nav-account" title="Account">
+      <span class="mobile-nav-icon">👤</span>
+      <span class="mobile-nav-label">Account</span>
+    </button>
+  </nav>
+
+  <!-- Mobile Export Drawer Modal -->
+  <div id="mobile-export-drawer" class="mobile-drawer-overlay">
+    <div class="mobile-drawer-card">
+      <div class="mobile-drawer-handle"></div>
+      <div class="mobile-drawer-header">
+        <h3 class="mobile-drawer-title">📥 Download Attendance Sheet</h3>
+        <button id="btn-close-export-drawer" class="icon-btn">✕</button>
+      </div>
+      <div class="mobile-export-options">
+        <button id="drawer-btn-pdf" class="mobile-export-btn btn-pdf">
+          <span class="export-btn-icon">📄</span>
+          <div class="export-btn-text">
+            <strong>Download Vector PDF</strong>
+            <small>High resolution 1-page printable PDF</small>
+          </div>
+        </button>
+        <button id="drawer-btn-excel" class="mobile-export-btn btn-excel">
+          <span class="export-btn-icon">📊</span>
+          <div class="export-btn-text">
+            <strong>Download Excel (.xlsx)</strong>
+            <small>Formatted Microsoft Excel spreadsheet</small>
+          </div>
+        </button>
+        <button id="drawer-btn-csv" class="mobile-export-btn btn-csv">
+          <span class="export-btn-icon">📝</span>
+          <div class="export-btn-text">
+            <strong>Download CSV Data</strong>
+            <small>Raw comma-separated text file</small>
+          </div>
+        </button>
+        <button id="drawer-btn-print" class="mobile-export-btn btn-print">
+          <span class="export-btn-icon">🖨️</span>
+          <div class="export-btn-text">
+            <strong>Print Directly</strong>
+            <small>Send directly to mobile wireless printer</small>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div id="toast-container" class="toast-container"></div>
 

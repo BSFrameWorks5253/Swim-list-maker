@@ -626,6 +626,84 @@ class AttendanceApp {
       });
     }
 
+    // Native Mobile Dock & Export Drawer Event Listeners
+    const mobileNavControls = document.getElementById('mobile-nav-controls');
+    const mobileNavPreview = document.getElementById('mobile-nav-preview');
+    const mobileNavExport = document.getElementById('mobile-nav-export');
+    const mobileNavAccount = document.getElementById('mobile-nav-account');
+
+    const mobileExportDrawer = document.getElementById('mobile-export-drawer');
+    const btnCloseExportDrawer = document.getElementById('btn-close-export-drawer');
+
+    const drawerBtnPdf = document.getElementById('drawer-btn-pdf');
+    const drawerBtnExcel = document.getElementById('drawer-btn-excel');
+    const drawerBtnCsv = document.getElementById('drawer-btn-csv');
+    const drawerBtnPrint = document.getElementById('drawer-btn-print');
+
+    if (mobileNavControls && mobileNavPreview) {
+      mobileNavControls.addEventListener('click', () => {
+        mobileNavControls.classList.add('active');
+        mobileNavPreview.classList.remove('active');
+        this.setMobileMode('edit');
+      });
+
+      mobileNavPreview.addEventListener('click', () => {
+        mobileNavPreview.classList.add('active');
+        mobileNavControls.classList.remove('active');
+        this.setMobileMode('preview');
+      });
+    }
+
+    if (mobileNavExport && mobileExportDrawer) {
+      mobileNavExport.addEventListener('click', () => {
+        mobileExportDrawer.classList.add('active');
+      });
+    }
+
+    if (mobileNavAccount && this.authModal) {
+      mobileNavAccount.addEventListener('click', () => {
+        this.updateUserHeaderUI();
+        this.authModal.classList.add('active');
+      });
+    }
+
+    if (btnCloseExportDrawer && mobileExportDrawer) {
+      btnCloseExportDrawer.addEventListener('click', () => {
+        mobileExportDrawer.classList.remove('active');
+      });
+      mobileExportDrawer.addEventListener('click', (e) => {
+        if (e.target === mobileExportDrawer) mobileExportDrawer.classList.remove('active');
+      });
+    }
+
+    if (drawerBtnPdf) {
+      drawerBtnPdf.addEventListener('click', () => {
+        if (mobileExportDrawer) mobileExportDrawer.classList.remove('active');
+        this.exportVectorPDF();
+      });
+    }
+
+    if (drawerBtnExcel) {
+      drawerBtnExcel.addEventListener('click', () => {
+        if (mobileExportDrawer) mobileExportDrawer.classList.remove('active');
+        this.exportExcel();
+      });
+    }
+
+    if (drawerBtnCsv) {
+      drawerBtnCsv.addEventListener('click', () => {
+        if (mobileExportDrawer) mobileExportDrawer.classList.remove('active');
+        this.exportCSV();
+      });
+    }
+
+    if (drawerBtnPrint) {
+      drawerBtnPrint.addEventListener('click', () => {
+        if (mobileExportDrawer) mobileExportDrawer.classList.remove('active');
+        window.print();
+      });
+    }
+
     if (this.btnMobileViewEdit && this.btnMobileViewPreview) {
       this.btnMobileViewEdit.addEventListener('click', () => this.setMobileMode('edit'));
       this.btnMobileViewPreview.addEventListener('click', () => this.setMobileMode('preview'));
