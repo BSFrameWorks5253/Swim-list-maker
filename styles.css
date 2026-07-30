@@ -799,14 +799,18 @@ textarea:focus {
   table-layout: fixed;
 }
 
+:root {
+  --cell-row-height: 52px;
+}
+
 .doc-table th,
 .doc-table td {
   border: 1px solid #000000;
-  padding: 16px 10px;
+  padding: calc( (var(--cell-row-height, 52px) - 22px) / 2 ) 10px;
   vertical-align: middle;
   font-size: 12.5pt;
   color: #000000;
-  height: 58px;
+  height: var(--cell-row-height, 52px);
   box-sizing: border-box;
 }
 

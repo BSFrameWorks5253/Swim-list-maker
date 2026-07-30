@@ -142,6 +142,29 @@
         </div>
       </div>
 
+      <!-- Cell Spacing & Layout Panel -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <span class="panel-title">📐 Cell Spacing & Row Height</span>
+        </div>
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label for="input-row-height">Row Height / Signature Space</label>
+            <span id="row-height-value" class="zoom-level-badge" style="min-width: 48px; background: var(--bg-input);">52px</span>
+          </div>
+          <input type="range" id="input-row-height" min="30" max="80" value="52" step="2" style="cursor: pointer; margin-top: 4px;">
+        </div>
+        <div class="form-group">
+          <label>Quick Spacing Presets</label>
+          <div class="form-row" style="grid-template-columns: repeat(4, 1fr); gap: 4px;">
+            <button class="btn btn-sm btn-secondary preset-height-btn" data-height="36">Compact</button>
+            <button class="btn btn-sm btn-secondary preset-height-btn" data-height="48">Normal</button>
+            <button class="btn btn-sm btn-secondary preset-height-btn" data-height="60">Spacious</button>
+            <button class="btn btn-sm btn-secondary preset-height-btn" data-height="72">Extra</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Saved Presets Panel -->
       <div class="panel-card">
         <div class="panel-header">

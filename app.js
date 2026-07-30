@@ -73,6 +73,7 @@ class AttendanceApp {
       useCustomDates: false,
       customDates: [],
       extraRows: 4,
+      rowHeight: 52,
       names: []
     };
 
@@ -164,6 +165,9 @@ class AttendanceApp {
     this.yearInput = document.getElementById('input-year');
     this.dayOfWeekSelect = document.getElementById('select-day');
     this.extraRowsInput = document.getElementById('input-extra-rows');
+    this.rowHeightInput = document.getElementById('input-row-height');
+    this.rowHeightValue = document.getElementById('row-height-value');
+    this.presetHeightBtns = document.querySelectorAll('.preset-height-btn');
     this.newStudentInput = document.getElementById('input-new-student');
     this.bulkNamesTextarea = document.getElementById('textarea-bulk-names');
     this.searchNamesInput = document.getElementById('input-search-names');
@@ -258,6 +262,32 @@ class AttendanceApp {
       this.renderPreview();
       this.updateStats();
     });
+
+    // Row Height / Cell Spacing Slider
+    if (this.rowHeightInput) {
+      this.rowHeightInput.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value, 10) || 52;
+        this.state.rowHeight = val;
+        if (this.rowHeightValue) this.rowHeightValue.textContent = `${val}px`;
+        document.documentElement.style.setProperty('--cell-row-height', `${val}px`);
+        this.saveActiveState();
+      });
+    }
+
+    // Quick Height Presets
+    if (this.presetHeightBtns) {
+      this.presetHeightBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const h = parseInt(btn.dataset.height, 10) || 52;
+          this.state.rowHeight = h;
+          if (this.rowHeightInput) this.rowHeightInput.value = h;
+          if (this.rowHeightValue) this.rowHeightValue.textContent = `${h}px`;
+          document.documentElement.style.setProperty('--cell-row-height', `${h}px`);
+          this.saveActiveState();
+          showToast(`Row height set to ${h}px`, 'info');
+        });
+      });
+    }
 
     // Category Tabs (Girls / Boys / Custom)
     this.categoryTabs.forEach(tab => {
@@ -460,6 +490,11 @@ class AttendanceApp {
     this.yearInput.value = this.state.year;
     this.dayOfWeekSelect.value = this.state.dayOfWeek;
     this.extraRowsInput.value = this.state.extraRows;
+
+    const currentHeight = this.state.rowHeight || 52;
+    if (this.rowHeightInput) this.rowHeightInput.value = currentHeight;
+    if (this.rowHeightValue) this.rowHeightValue.textContent = `${currentHeight}px`;
+    document.documentElement.style.setProperty('--cell-row-height', `${currentHeight}px`);
 
     this.categoryTabs.forEach(tab => {
       tab.classList.toggle('active', tab.dataset.category.toLowerCase() === this.state.category.toLowerCase());
@@ -686,6 +721,8 @@ class AttendanceApp {
     // 4. Invoke AutoTable safely across CJS / UMD module formats
     const autoTableFunc = doc.autoTable || (window.jspdf ? window.jspdf.autoTable : null) || (window.autoTable);
 
+    const pdfTopBottomPadding = Math.max(2.5, ((this.state.rowHeight || 52) - 16) / 4);
+
     if (typeof autoTableFunc === 'function') {
       autoTableFunc.call(doc, {
         startY: 44,
@@ -696,7 +733,7 @@ class AttendanceApp {
         styles: {
           font: 'helvetica',
           fontSize: 12,
-          cellPadding: { top: 7.5, bottom: 7.5, left: 3, right: 3 },
+          cellPadding: { top: pdfTopBottomPadding, bottom: pdfTopBottomPadding, left: 3, right: 3 },
           lineColor: [0, 0, 0],
           lineWidth: 0.25,
           textColor: [0, 0, 0],
