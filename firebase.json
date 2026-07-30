@@ -1,14 +1,28 @@
 {
-  "hosting": {
-    "public": ".",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**",
-      "dataconnect/**",
-      "publish.py"
-    ]
-  },
+  "hosting": [
+    {
+      "site": "aquaflowpro",
+      "public": ".",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**",
+        "dataconnect/**",
+        "publish.py"
+      ]
+    },
+    {
+      "site": "aqua-flow-15d6d",
+      "public": ".",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**",
+        "dataconnect/**",
+        "publish.py"
+      ]
+    }
+  ],
   "firestore": {
     "rules": "firestore.rules"
   }
