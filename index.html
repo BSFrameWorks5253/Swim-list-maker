@@ -442,5 +442,12 @@
   <!-- JavaScript Scripts -->
   <script src="sample_data.js"></script>
   <script src="app.js"></script>
+  <script>
+    // Safety fallback: Dismiss loading overlay after 600ms if not already dismissed
+    setTimeout(function() {
+      var loader = document.getElementById('loading-overlay');
+      if (loader) loader.classList.add('fade-out');
+    }, 600);
+  </script>
 </body>
 </html>

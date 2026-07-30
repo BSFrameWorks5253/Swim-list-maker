@@ -126,7 +126,35 @@ class AttendanceApp {
     this.updateApp();
     this.autoFitOnePage(false);
     this.autoScaleMobilePreview();
-    this.dismissSplash();
+  }
+
+  dismissSplash() {
+    setTimeout(() => {
+      const loader = document.getElementById('loading-overlay');
+      if (loader) loader.classList.add('fade-out');
+    }, 300);
+  }
+
+  applyTheme(theme) {
+    this.currentTheme = theme;
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('app_theme', theme);
+
+    if (this.themeToggleIcon && this.themeToggleLabel) {
+      if (theme === 'dark') {
+        this.themeToggleIcon.textContent = '🌙';
+        this.themeToggleLabel.textContent = 'Dark';
+      } else {
+        this.themeToggleIcon.textContent = '☀️';
+        this.themeToggleLabel.textContent = 'Light';
+      }
+    }
+  }
+
+  toggleTheme() {
+    const nextTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+    this.applyTheme(nextTheme);
+    showToast(`Switched to ${nextTheme.toUpperCase()} mode`, 'info');
   }
 
   loadUsers() {
