@@ -1,0 +1,11 @@
+Version: 1.0.1
+Date: 2026-07-30 17:07:13
+Notes: Added Light Theme & Auto-Update Engine
+
+Bugs Fixed:
+Fixed custom marker timeline export sync
+
+Improvements:
+Faster panel launch & high contrast buttons
+
+Official update release for One Tap Parent Extension inside Adobe Premiere Pro.

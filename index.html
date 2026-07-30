@@ -302,7 +302,15 @@
         </div>
       </div>
 
-      <div class="paper-wrapper">
+      <div class="paper-wrapper" style="position: relative;">
+        <!-- Auth Lock Banner when Guest -->
+        <div id="preview-lock-overlay" class="preview-lock-overlay" style="display: none;">
+          <div style="font-size: 2.5rem; margin-bottom: 4px;">🔐</div>
+          <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin: 0;">Sign In Required</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted); max-width: 320px; text-align: center; margin: 6px 0 14px 0;">Log in or create a free account to access your private attendance studio and generate vector PDFs.</p>
+          <button id="btn-lock-signin" class="btn btn-primary">🚀 Sign In / Register Now</button>
+        </div>
+
         <!-- Exact PDF Printable Output Document -->
         <div id="pdf-document">
           <div class="doc-header">

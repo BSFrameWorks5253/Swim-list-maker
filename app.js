@@ -409,6 +409,8 @@ class AttendanceApp {
     this.demoUserBtns = document.querySelectorAll('.btn-demo-user');
     this.btnGoogleSignin = document.getElementById('btn-google-signin');
     this.btnMagicLink = document.getElementById('btn-magic-link');
+    this.previewLockOverlay = document.getElementById('preview-lock-overlay');
+    this.btnLockSignin = document.getElementById('btn-lock-signin');
   }
 
   handleEmailLinkAuth() {
@@ -1029,6 +1031,7 @@ class AttendanceApp {
       this.mainContainer.classList.add('mobile-mode-preview');
       if (this.btnMobileViewEdit) this.btnMobileViewEdit.classList.remove('active');
       if (this.btnMobileViewPreview) this.btnMobileViewPreview.classList.add('active');
+      if (this.btnMobileToggleView) this.btnMobileToggleView.innerHTML = '⚙️ Edit Settings';
       this.autoScaleMobilePreview();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
@@ -1036,6 +1039,7 @@ class AttendanceApp {
       this.mainContainer.classList.add('mobile-mode-edit');
       if (this.btnMobileViewEdit) this.btnMobileViewEdit.classList.add('active');
       if (this.btnMobileViewPreview) this.btnMobileViewPreview.classList.remove('active');
+      if (this.btnMobileToggleView) this.btnMobileToggleView.innerHTML = '👁️ Sheet Preview';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
@@ -1044,9 +1048,10 @@ class AttendanceApp {
     if (window.innerWidth <= 768) {
       const wrapper = document.querySelector('.paper-wrapper');
       if (wrapper) {
-        const availableWidth = wrapper.clientWidth - 16;
+        const padding = 16;
+        const availableWidth = Math.max(280, (wrapper.clientWidth || window.innerWidth) - padding);
         const docWidth = 794; // ~210mm in px
-        const targetScale = Math.min(1.0, Math.max(0.38, availableWidth / docWidth));
+        const targetScale = Math.min(1.0, Math.max(0.35, availableWidth / docWidth));
         this.zoomScale = parseFloat(targetScale.toFixed(2));
         this.applyZoom();
       }
@@ -1135,8 +1140,29 @@ class AttendanceApp {
 
   renderStudentTags() {
     this.studentTagsEl.innerHTML = '';
-    const query = this.searchQuery;
 
+    if (!this.activeUserId || this.activeUserId === 'guest') {
+      this.studentTagsEl.innerHTML = `
+        <div style="padding: 20px; text-align: center; color: var(--text-muted); background: var(--bg-input); border-radius: var(--radius-md);">
+          <p style="font-size: 1.4rem; margin-bottom: 6px;">🔐</p>
+          <p style="font-weight: 700; font-size: 0.85rem; margin-bottom: 4px; color: var(--text-main);">Sign In Required</p>
+          <p style="font-size: 0.76rem;">Please log in to manage your students and access your cloud workspace.</p>
+        </div>
+      `;
+      return;
+    }
+
+    if (this.state.names.length === 0) {
+      this.studentTagsEl.innerHTML = `
+        <div style="padding: 18px; text-align: center; color: var(--text-muted); border: 1px dashed var(--border-subtle); border-radius: var(--radius-md);">
+          <p style="font-weight: 600; font-size: 0.82rem; margin-bottom: 2px; color: var(--text-main);">✨ Clean Empty Workspace</p>
+          <p style="font-size: 0.76rem;">Add your students using the input box above or paste a list of names.</p>
+        </div>
+      `;
+      return;
+    }
+
+    const query = this.searchQuery;
     this.state.names.forEach((name, index) => {
       if (query && !name.toLowerCase().includes(query)) {
         return;
@@ -1200,6 +1226,15 @@ class AttendanceApp {
   }
 
   renderPreview() {
+    // Auth lock overlay
+    if (this.previewLockOverlay) {
+      if (!this.activeUserId || this.activeUserId === 'guest') {
+        this.previewLockOverlay.style.display = 'flex';
+      } else {
+        this.previewLockOverlay.style.display = 'none';
+      }
+    }
+
     // Header
     this.docTitle.textContent = this.state.title;
     this.docSubtitle.textContent = this.state.subtitle;
