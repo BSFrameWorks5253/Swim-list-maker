@@ -1,16 +1,17 @@
 // ==============================================================================
-// AQUAFLOW PRO - ENVIRONMENT & SECURITY CONFIGURATION LOADER
+// AQUAFLOW PRO - PRODUCTION FIREBASE CONFIGURATION LOADER
 // ==============================================================================
-// Loads Firebase credentials securely with fallbacks for local and production modes.
+// Configured for live Firebase Project: aqua-flow-15d6d
 
 window.AQUAFLOW_CONFIG = window.AQUAFLOW_CONFIG || {
   firebase: {
-    apiKey: "AIzaSyAquaFlowProStudioAuthKey2026Demo",
-    authDomain: "aquaflow-pro.firebaseapp.com",
-    projectId: "aquaflow-pro",
-    storageBucket: "aquaflow-pro.appspot.com",
-    messagingSenderId: "84729384729",
-    appId: "1:84729384729:web:a1b2c3d4e5f6g7h8"
+    apiKey: "AIzaSyAhcxkoI8vH2YTSxKReb3d71y_OsLleAsY",
+    authDomain: "aqua-flow-15d6d.firebaseapp.com",
+    projectId: "aqua-flow-15d6d",
+    storageBucket: "aqua-flow-15d6d.firebasestorage.app",
+    messagingSenderId: "120645459091",
+    appId: "1:120645459091:web:dec339e857bd361668c166",
+    measurementId: "G-9D18BX79LY"
   },
   security: {
     enableXSSSanitization: true,
