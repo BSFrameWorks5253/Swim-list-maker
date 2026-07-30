@@ -272,6 +272,7 @@ class AttendanceApp {
         if (this.rowHeightValue) this.rowHeightValue.textContent = `${val}px`;
         document.documentElement.style.setProperty('--cell-row-height', `${val}px`);
         this.saveActiveState();
+        this.renderPreview();
       });
     }
 
@@ -285,6 +286,7 @@ class AttendanceApp {
           if (this.rowHeightValue) this.rowHeightValue.textContent = `${h}px`;
           document.documentElement.style.setProperty('--cell-row-height', `${h}px`);
           this.saveActiveState();
+          this.renderPreview();
           showToast(`Row height set to ${h}px`, 'info');
         });
       });
@@ -659,6 +661,7 @@ class AttendanceApp {
     if (this.rowHeightValue) this.rowHeightValue.textContent = `${targetHeight}px`;
     document.documentElement.style.setProperty('--cell-row-height', `${targetHeight}px`);
     this.saveActiveState();
+    this.renderPreview();
     if (showNotification) {
       showToast(`Auto-fitted ${totalRows} rows to 1 page (${targetHeight}px/row)`, 'success');
     }
