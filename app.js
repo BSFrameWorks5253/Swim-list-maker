@@ -74,6 +74,7 @@ class AttendanceApp {
       customDates: [],
       extraRows: 4,
       rowHeight: 52,
+      excludedDates: '',
       names: []
     };
 
@@ -165,6 +166,7 @@ class AttendanceApp {
     this.yearInput = document.getElementById('input-year');
     this.dayOfWeekSelect = document.getElementById('select-day');
     this.extraRowsInput = document.getElementById('input-extra-rows');
+    this.excludeDatesInput = document.getElementById('input-exclude-dates');
     this.rowHeightInput = document.getElementById('input-row-height');
     this.rowHeightValue = document.getElementById('row-height-value');
     this.presetHeightBtns = document.querySelectorAll('.preset-height-btn');
@@ -199,6 +201,7 @@ class AttendanceApp {
     this.btnImportJSON = document.getElementById('btn-import-json');
     this.fileImportInput = document.getElementById('file-import-json');
     this.btnExportPDF = document.getElementById('btn-export-pdf');
+    this.btnExportExcel = document.getElementById('btn-export-excel');
     this.btnPrintWindow = document.getElementById('btn-print-window');
     this.btnExportCSV = document.getElementById('btn-export-csv');
 
@@ -442,8 +445,21 @@ class AttendanceApp {
       this.applyZoom();
     });
 
+    // Exclude dates input
+    if (this.excludeDatesInput) {
+      this.excludeDatesInput.addEventListener('input', (e) => {
+        this.state.excludedDates = e.target.value;
+        this.saveActiveState();
+        this.renderPreview();
+        this.updateStats();
+      });
+    }
+
     // Export Actions
     this.btnExportPDF.addEventListener('click', () => this.exportVectorPDF());
+    if (this.btnExportExcel) {
+      this.btnExportExcel.addEventListener('click', () => this.exportExcel());
+    }
     this.btnPrintWindow.addEventListener('click', () => window.print());
     this.btnExportCSV.addEventListener('click', () => this.exportCSV());
   }
@@ -498,6 +514,7 @@ class AttendanceApp {
     this.yearInput.value = this.state.year;
     this.dayOfWeekSelect.value = this.state.dayOfWeek;
     this.extraRowsInput.value = this.state.extraRows;
+    if (this.excludeDatesInput) this.excludeDatesInput.value = this.state.excludedDates || '';
 
     const currentHeight = this.state.rowHeight || 52;
     if (this.rowHeightInput) this.rowHeightInput.value = currentHeight;
@@ -692,6 +709,46 @@ class AttendanceApp {
     showToast('CSV exported successfully!', 'success');
   }
 
+  // Formatted Excel (.xlsx) Export using SheetJS
+  exportExcel() {
+    if (typeof XLSX === 'undefined') {
+      showToast('Excel exporter library not ready', 'error');
+      return;
+    }
+
+    const dates = this.getCurrentDates();
+    const wsData = [
+      [this.state.title || "Attendance Sheet"],
+      [this.state.subtitle || ""],
+      [this.state.batchName || ""],
+      [], // Empty row
+      ['Name', ...dates]
+    ];
+
+    // Student Names
+    this.state.names.forEach(name => {
+      wsData.push([name, ...dates.map(() => '')]);
+    });
+
+    // Extra Blank Rows
+    for (let i = 0; i < (this.state.extraRows || 0); i++) {
+      wsData.push(['', ...dates.map(() => '')]);
+    }
+
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Set Column Widths (Name = 32, Dates = 14)
+    const colWidths = [{ wch: 32 }];
+    dates.forEach(() => colWidths.push({ wch: 14 }));
+    ws['!cols'] = colWidths;
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Attendance Sheet");
+
+    XLSX.writeFile(wb, `${this.state.batchName || 'Attendance'}_Sheet.xlsx`);
+    showToast('Formatted Excel sheet exported successfully!', 'success');
+  }
+
   // Pure Crisp Vector PDF Generation Engine using jsPDF + AutoTable
   exportVectorPDF() {
     const jsPDFLib = window.jspdf ? window.jspdf.jsPDF : (typeof jsPDF !== 'undefined' ? jsPDF : null);
@@ -756,6 +813,7 @@ class AttendanceApp {
         startY: 44,
         head: headers,
         body: body,
+        showHead: 'everyPage',
         margin: { left: 16, right: 16, top: 16, bottom: 16 },
         theme: 'plain',
         styles: {

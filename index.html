@@ -9,9 +9,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <!-- jsPDF & jspdf-autotable for Vector Crisp PDF export -->
+  <!-- jsPDF, jspdf-autotable & SheetJS for PDF & Excel export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -58,6 +59,7 @@
       </button>
 
       <button id="btn-export-pdf" class="btn btn-primary">📄 Export PDF</button>
+      <button id="btn-export-excel" class="btn btn-purple">📊 Export Excel</button>
       <button id="btn-print-window" class="btn btn-secondary">🖨️ Print Document</button>
       <button id="btn-export-csv" class="btn btn-emerald">📊 Export CSV</button>
     </div>
@@ -139,6 +141,12 @@
         <div class="form-group">
           <label for="input-extra-rows">Extra Empty Rows (at bottom)</label>
           <input type="number" id="input-extra-rows" value="4" min="0" max="15">
+        </div>
+
+        <div class="form-group">
+          <label for="input-exclude-dates">🚫 Exclude Dates / Holidays</label>
+          <input type="text" id="input-exclude-dates" placeholder="e.g. 15th Aug, 29th Aug">
+          <span style="font-size: 0.72rem; color: var(--text-muted);">Enter specific dates to skip, separated by commas.</span>
         </div>
       </div>
 
