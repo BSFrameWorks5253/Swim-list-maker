@@ -1328,6 +1328,13 @@ textarea:focus {
     display: none; /* Hide full user name in top header to prevent line breaks */
   }
 
+  .header-actions #btn-export-pdf,
+  .header-actions #btn-export-excel,
+  .header-actions #btn-print-window,
+  .header-actions #btn-export-csv {
+    display: none !important; /* Hide header buttons on mobile; sticky bottom bar handles export */
+  }
+
   .theme-toggle-btn {
     padding: 4px 8px;
     min-height: 36px;

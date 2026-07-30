@@ -157,7 +157,7 @@
       <!-- Date & Schedule Generator Panel -->
       <div class="panel-card">
         <div class="panel-header">
-          <span class="panel-title">📅 Date Auto-Generator</span>
+          <span class="panel-title">📅 Date & Schedule Settings</span>
         </div>
         <div class="form-row-3">
           <div class="form-group">
@@ -202,8 +202,14 @@
 
         <div class="form-group">
           <label for="input-exclude-dates">🚫 Exclude Dates / Holidays</label>
-          <input type="text" id="input-exclude-dates" placeholder="e.g. 15th Aug, 29th Aug">
-          <span style="font-size: 0.72rem; color: var(--text-muted);">Enter specific dates to skip, separated by commas.</span>
+          <input type="text" id="input-exclude-dates" placeholder="e.g. 15th Jul, 29th Jul">
+          <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 2px;">Enter specific dates or terms to skip, separated by commas.</span>
+        </div>
+
+        <div class="form-group" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-subtle);">
+          <label for="input-custom-dates-text">✏️ Custom Dates (Optional Manual Overrides)</label>
+          <input type="text" id="input-custom-dates-text" placeholder="e.g. 4th Jul, 11th Jul, 18th Jul, 25th Jul">
+          <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 2px;">Leave empty to use automatic weekly generator above.</span>
         </div>
       </div>
 
@@ -236,8 +242,11 @@
       <!-- Saved Presets Panel -->
       <div class="panel-card">
         <div class="panel-header">
-          <span class="panel-title">⭐ Saved Presets</span>
-          <button id="btn-save-preset" class="btn btn-sm btn-pink">+ Save Current</button>
+          <div>
+            <span class="panel-title">⭐ Saved Name Presets</span>
+            <span style="font-size: 0.72rem; color: var(--text-muted); display: block;">Stores student name lists. Does not change dates or time.</span>
+          </div>
+          <button id="btn-save-preset" class="btn btn-sm btn-pink">+ Save Names</button>
         </div>
         <div id="preset-list" class="preset-list">
           <!-- Populated by JavaScript -->

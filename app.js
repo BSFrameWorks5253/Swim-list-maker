@@ -337,6 +337,7 @@ class AttendanceApp {
     this.dayOfWeekSelect = document.getElementById('select-day');
     this.extraRowsInput = document.getElementById('input-extra-rows');
     this.excludeDatesInput = document.getElementById('input-exclude-dates');
+    this.customDatesInput = document.getElementById('input-custom-dates-text');
     this.rowHeightInput = document.getElementById('input-row-height');
     this.rowHeightValue = document.getElementById('row-height-value');
     this.presetHeightBtns = document.querySelectorAll('.preset-height-btn');
@@ -452,50 +453,50 @@ class AttendanceApp {
 
   handleGoogleRedirectResult() {
     if (typeof firebase !== 'undefined' && firebase.auth) {
-      firebase.auth().getRedirectResult()
-        .then((result) => {
-          if (result && result.user) {
-            const fbUser = result.user;
-            const userId = fbUser.uid;
-            const found = {
-              id: userId,
-              name: fbUser.displayName || 'Google User',
-              username: fbUser.email ? fbUser.email.split('@')[0] : 'google_user',
-              email: fbUser.email || '',
-              role: 'Google Verified Coach',
-              avatar: '🌐'
-            };
-            if (!this.users.find(u => u.id === userId)) {
-              this.users.push(found);
-              this.saveUsers();
-            }
-            this.switchUser(userId);
-            showToast(`🌐 Logged in with Google as ${found.name}!`, 'success');
+      firebase.auth().getRedirectResult().then((result) => {
+        if (result && result.user) {
+          const fbUser = result.user;
+          const userId = fbUser.uid;
+          const found = {
+            id: userId,
+            name: fbUser.displayName || 'Google User',
+            username: fbUser.email ? fbUser.email.split('@')[0] : 'google_user',
+            email: fbUser.email || '',
+            role: 'Google Verified Coach',
+            avatar: '🌐'
+          };
+          if (!this.users.find(u => u.id === userId)) {
+            this.users.push(found);
+            this.saveUsers();
           }
-        })
-        .catch((err) => {
-          if (err.code !== 'auth/null-user') {
-            console.warn('Google Redirect Auth:', err.message);
-          }
-        });
+          this.switchUser(userId);
+          showToast(`🌐 Logged in with Google as ${found.name}!`, 'success');
+        }
+      }).catch((err) => {
+        console.error('Google Redirect Auth Error:', err);
+      });
     }
   }
 
   bindEvents() {
-    // Google Sign-In Event Handler (With Mobile Redirect Fallback)
+    // Auth Modal lock button
+    if (this.btnLockSignin) {
+      this.btnLockSignin.addEventListener('click', () => {
+        if (this.authModal) this.authModal.classList.add('active');
+      });
+    }
+
+    // Google 1-Click Popup / Redirect Sign In
     if (this.btnGoogleSignin) {
       this.btnGoogleSignin.addEventListener('click', async () => {
         if (typeof firebase !== 'undefined' && firebase.auth) {
           try {
             const provider = new firebase.auth.GoogleAuthProvider();
-            provider.setCustomParameters({ prompt: 'select_account' });
-
-            let result;
+            let result = null;
             try {
               result = await firebase.auth().signInWithPopup(provider);
             } catch (popErr) {
               if (popErr.code === 'auth/popup-blocked' || popErr.code === 'auth/popup-closed-by-user') {
-                showToast('Opening Google Sign-In redirect...', 'info');
                 await firebase.auth().signInWithRedirect(provider);
                 return;
               }
@@ -602,14 +603,13 @@ class AttendanceApp {
       });
     }
 
-    // Sign In Form Submission (With Firebase Auth support)
+    // Sign In Form Submission
     if (this.formSignin) {
       this.formSignin.addEventListener('submit', async (e) => {
         e.preventDefault();
         const usernameVal = document.getElementById('input-login-username').value.trim().toLowerCase();
         const passwordVal = document.getElementById('input-login-password') ? document.getElementById('input-login-password').value : '';
 
-        // Try Firebase Auth if email format provided
         if (typeof firebase !== 'undefined' && firebase.auth && usernameVal.includes('@')) {
           try {
             const userCred = await firebase.auth().signInWithEmailAndPassword(usernameVal, passwordVal);
@@ -638,7 +638,6 @@ class AttendanceApp {
           }
         }
 
-        // Local Auth Fallback
         const found = this.users.find(u => u.username.toLowerCase() === usernameVal || u.email.toLowerCase() === usernameVal || u.id.toLowerCase() === usernameVal);
         if (found) {
           this.switchUser(found.id);
@@ -661,7 +660,7 @@ class AttendanceApp {
       });
     }
 
-    // Register Form Submission (With Firebase Auth support)
+    // Register Form Submission
     if (this.formRegister) {
       this.formRegister.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -672,7 +671,6 @@ class AttendanceApp {
 
         if (!nameVal || !usernameVal) return;
 
-        // Try Firebase Auth Registration if email & password provided
         if (typeof firebase !== 'undefined' && firebase.auth && emailVal && passwordVal.length >= 6) {
           try {
             const userCred = await firebase.auth().createUserWithEmailAndPassword(emailVal, passwordVal);
@@ -699,7 +697,6 @@ class AttendanceApp {
           }
         }
 
-        // Local Workspace Registration Fallback
         const newId = 'user_' + usernameVal.replace(/[^a-z0-9_]/g, '');
         const newUser = {
           id: newId,
@@ -731,7 +728,7 @@ class AttendanceApp {
         this.renderPresets();
         this.updateApp();
         if (this.authModal) this.authModal.classList.add('active');
-        showToast('Logged out. Workspace wiped cleanly.', 'info');
+        showToast('Logged out. Switched to guest mode.', 'info');
       });
     }
 
@@ -840,7 +837,7 @@ class AttendanceApp {
       this.btnAutoFitPage.addEventListener('click', () => this.autoFitOnePage(true));
     }
 
-    // Category Tabs (Girls / Boys / Custom)
+    // Category Tabs (Girls / Boys / Custom) - PRESETS ONLY ALTER STUDENT NAMES LIST
     this.categoryTabs.forEach(tab => {
       tab.addEventListener('click', () => {
         const cat = tab.dataset.category;
@@ -851,13 +848,17 @@ class AttendanceApp {
         if (cat === 'Girls') {
           const match = this.presets.find(p => p.id === 'girls-batch-4' || p.category === 'Girls') || SAMPLE_PRESETS[0];
           this.activePresetId = match ? match.id : 'girls-batch-4';
-          this.state.batchName = match ? (match.batchName || match.name) : 'Girls Batch 4';
-          this.state.names = match && match.names && match.names.length > 0 ? [...match.names] : [...SAMPLE_PRESETS[0].names];
+          this.state.batchName = match ? (match.name || 'Girls Batch 4') : 'Girls Batch 4';
+          if (match && match.names && match.names.length > 0) {
+            this.state.names = [...match.names];
+          }
         } else if (cat === 'Boys') {
           const match = this.presets.find(p => p.id === 'boys-batch-4' || p.category === 'Boys') || SAMPLE_PRESETS[1];
           this.activePresetId = match ? match.id : 'boys-batch-4';
-          this.state.batchName = match ? (match.batchName || match.name) : 'Boys Batch 4';
-          this.state.names = match && match.names && match.names.length > 0 ? [...match.names] : [...SAMPLE_PRESETS[1].names];
+          this.state.batchName = match ? (match.name || 'Boys Batch 4') : 'Boys Batch 4';
+          if (match && match.names && match.names.length > 0) {
+            this.state.names = [...match.names];
+          }
         } else if (cat === 'Custom') {
           this.state.batchName = 'Custom Batch';
         }
@@ -865,7 +866,7 @@ class AttendanceApp {
         this.updateControlsFromState();
         this.updateApp();
         this.autoFitOnePage(false);
-        showToast(`Switched to ${this.state.batchName}`, 'info');
+        showToast(`Loaded ${cat} student names list`, 'info');
       });
     });
 
@@ -922,23 +923,16 @@ class AttendanceApp {
       }
     });
 
-    // Save Preset
+    // Save Preset - STORES STUDENT NAMES ONLY
     this.btnSavePreset.addEventListener('click', () => {
-      const presetName = prompt('Enter a name for this preset:', `${this.state.batchName} Preset`);
+      const presetName = prompt('Enter a name for this Name Preset:', `${this.state.batchName || 'Student'} List`);
       if (!presetName) return;
 
       const newId = 'preset-' + Date.now();
       const preset = {
         id: newId,
         name: presetName,
-        category: this.state.category,
-        title: this.state.title,
-        subtitle: this.state.subtitle,
-        batchName: this.state.batchName,
-        month: this.state.month,
-        year: this.state.year,
-        dayOfWeek: this.state.dayOfWeek,
-        extraRows: this.state.extraRows,
+        category: this.state.category || 'Custom',
         names: [...this.state.names]
       };
 
@@ -946,7 +940,7 @@ class AttendanceApp {
       this.activePresetId = newId;
       this.saveStoredPresets();
       this.renderPresets();
-      showToast(`Preset "${presetName}" saved!`, 'success');
+      showToast(`Name Preset "${presetName}" saved! (${preset.names.length} students)`, 'success');
     });
 
     // Export/Import JSON Presets
@@ -999,10 +993,27 @@ class AttendanceApp {
       this.applyZoom();
     });
 
-    // Exclude dates input
+    // Exclude dates input listener
     if (this.excludeDatesInput) {
       this.excludeDatesInput.addEventListener('input', (e) => {
         this.state.excludedDates = e.target.value;
+        this.saveActiveState();
+        this.renderPreview();
+        this.updateStats();
+      });
+    }
+
+    // Custom dates manual override input listener
+    if (this.customDatesInput) {
+      this.customDatesInput.addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+        if (val) {
+          this.state.useCustomDates = true;
+          this.state.customDates = val.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        } else {
+          this.state.useCustomDates = false;
+          this.state.customDates = [];
+        }
         this.saveActiveState();
         this.renderPreview();
         this.updateStats();
@@ -1059,10 +1070,28 @@ class AttendanceApp {
   }
 
   getCurrentDates() {
-    if (this.state.useCustomDates && this.state.customDates.length > 0) {
-      return this.state.customDates;
+    let dates = [];
+    if (this.state.useCustomDates && this.state.customDates && this.state.customDates.length > 0) {
+      dates = [...this.state.customDates];
+    } else {
+      dates = getDatesForDayOfWeek(this.state.year, this.state.month, this.state.dayOfWeek);
     }
-    return getDatesForDayOfWeek(this.state.year, this.state.month, this.state.dayOfWeek);
+
+    if (this.state.excludedDates && this.state.excludedDates.trim()) {
+      const excludes = this.state.excludedDates
+        .split(',')
+        .map(s => s.trim().toLowerCase())
+        .filter(s => s.length > 0);
+
+      if (excludes.length > 0) {
+        dates = dates.filter(d => {
+          const lowerD = d.toLowerCase();
+          return !excludes.some(ex => lowerD.includes(ex) || ex.includes(lowerD));
+        });
+      }
+    }
+
+    return dates;
   }
 
   loadPreset(id) {
@@ -1070,20 +1099,16 @@ class AttendanceApp {
     if (!preset) return;
 
     this.activePresetId = id;
-    this.state.title = preset.title || 'Swimming attendance';
-    this.state.subtitle = preset.subtitle || '';
-    this.state.batchName = preset.batchName || preset.name;
-    this.state.category = preset.category || 'Girls';
-    this.state.month = preset.month !== undefined ? preset.month : 6;
-    this.state.year = preset.year || 2026;
-    this.state.dayOfWeek = preset.dayOfWeek !== undefined ? preset.dayOfWeek : 6;
-    this.state.extraRows = preset.extraRows !== undefined ? preset.extraRows : 4;
-    this.state.names = [...preset.names];
+    // Preset ONLY loads student name list (and preset name label)
+    // Preserves title, time/subtitle, month, year, day of week, extra rows, excluded dates, and spacing!
+    this.state.names = preset.names ? [...preset.names] : [];
+    if (preset.category) this.state.category = preset.category;
+    if (preset.name) this.state.batchName = preset.name;
 
     this.updateControlsFromState();
     this.updateApp();
     this.autoFitOnePage(false);
-    showToast(`Loaded "${preset.name}"`, 'info');
+    showToast(`Loaded ${this.state.names.length} student names from "${preset.name}"`, 'info');
   }
 
   deletePreset(id, e) {
@@ -1096,14 +1121,17 @@ class AttendanceApp {
   }
 
   updateControlsFromState() {
-    this.titleInput.value = this.state.title;
-    this.subtitleInput.value = this.state.subtitle;
-    this.batchInput.value = this.state.batchName;
-    this.monthSelect.value = this.state.month;
-    this.yearInput.value = this.state.year;
-    this.dayOfWeekSelect.value = this.state.dayOfWeek;
-    this.extraRowsInput.value = this.state.extraRows;
+    this.titleInput.value = this.state.title || '';
+    this.subtitleInput.value = this.state.subtitle || '';
+    this.batchInput.value = this.state.batchName || '';
+    this.monthSelect.value = this.state.month !== undefined ? this.state.month : 6;
+    this.yearInput.value = this.state.year || 2026;
+    this.dayOfWeekSelect.value = this.state.dayOfWeek !== undefined ? this.state.dayOfWeek : 6;
+    this.extraRowsInput.value = this.state.extraRows !== undefined ? this.state.extraRows : 4;
     if (this.excludeDatesInput) this.excludeDatesInput.value = this.state.excludedDates || '';
+    if (this.customDatesInput) {
+      this.customDatesInput.value = (this.state.customDates && this.state.customDates.length > 0) ? this.state.customDates.join(', ') : '';
+    }
 
     const currentHeight = this.state.rowHeight || 48;
     if (this.rowHeightInput) this.rowHeightInput.value = currentHeight;
@@ -1111,22 +1139,32 @@ class AttendanceApp {
     document.documentElement.style.setProperty('--cell-row-height', `${currentHeight}px`);
 
     this.categoryTabs.forEach(tab => {
-      tab.classList.toggle('active', tab.dataset.category.toLowerCase() === this.state.category.toLowerCase());
+      tab.classList.toggle('active', tab.dataset.category.toLowerCase() === (this.state.category || '').toLowerCase());
     });
   }
 
   renderPresets() {
     this.presetListEl.innerHTML = '';
+    if (!this.presets || this.presets.length === 0) {
+      this.presetListEl.innerHTML = `
+        <div style="padding: 10px; text-align: center; color: var(--text-muted); font-size: 0.78rem;">
+          No saved presets yet. Click "+ Save Names" above to save your current list.
+        </div>
+      `;
+      return;
+    }
+
     this.presets.forEach(p => {
       const item = document.createElement('div');
       item.className = `preset-item ${p.id === this.activePresetId ? 'active' : ''}`;
       
       const badgeClass = p.category === 'Girls' ? 'badge-girls' : 'badge-boys';
+      const studentCount = p.names ? p.names.length : 0;
 
       item.innerHTML = `
         <div class="preset-info">
           <div class="preset-name">${p.name}</div>
-          <div class="preset-meta"><span class="badge ${badgeClass}">${p.category}</span> • ${p.names.length} Students</div>
+          <div class="preset-meta"><span class="badge ${badgeClass}">${p.category || 'List'}</span> • ${studentCount} Students</div>
         </div>
         <button class="icon-btn btn-delete-preset" title="Delete Preset">✕</button>
       `;
@@ -1141,18 +1179,7 @@ class AttendanceApp {
   renderStudentTags() {
     this.studentTagsEl.innerHTML = '';
 
-    if (!this.activeUserId || this.activeUserId === 'guest') {
-      this.studentTagsEl.innerHTML = `
-        <div style="padding: 20px; text-align: center; color: var(--text-muted); background: var(--bg-input); border-radius: var(--radius-md);">
-          <p style="font-size: 1.4rem; margin-bottom: 6px;">🔐</p>
-          <p style="font-weight: 700; font-size: 0.85rem; margin-bottom: 4px; color: var(--text-main);">Sign In Required</p>
-          <p style="font-size: 0.76rem;">Please log in to manage your students and access your cloud workspace.</p>
-        </div>
-      `;
-      return;
-    }
-
-    if (this.state.names.length === 0) {
+    if (!this.state.names || this.state.names.length === 0) {
       this.studentTagsEl.innerHTML = `
         <div style="padding: 18px; text-align: center; color: var(--text-muted); border: 1px dashed var(--border-subtle); border-radius: var(--radius-md);">
           <p style="font-weight: 600; font-size: 0.82rem; margin-bottom: 2px; color: var(--text-main);">✨ Clean Empty Workspace</p>
@@ -1181,11 +1208,13 @@ class AttendanceApp {
       `;
 
       const input = tag.querySelector('input');
-      input.addEventListener('change', (e) => {
+      const handleTagEdit = (e) => {
         this.state.names[index] = e.target.value;
         this.saveActiveState();
         this.renderPreview();
-      });
+      };
+      input.addEventListener('input', handleTagEdit);
+      input.addEventListener('change', handleTagEdit);
 
       // Move Up
       tag.querySelector('.btn-move-up').addEventListener('click', () => {
@@ -1220,19 +1249,15 @@ class AttendanceApp {
 
   updateStats() {
     const dates = this.getCurrentDates();
-    this.statStudentsCount.textContent = this.state.names.length;
+    this.statStudentsCount.textContent = this.state.names ? this.state.names.length : 0;
     this.statDatesCount.textContent = dates.length;
-    this.statRowsCount.textContent = this.state.extraRows;
+    this.statRowsCount.textContent = this.state.extraRows || 0;
   }
 
   renderPreview() {
-    // Auth lock overlay
+    // Auth lock overlay (Always non-blocking for clean user experience)
     if (this.previewLockOverlay) {
-      if (!this.activeUserId || this.activeUserId === 'guest') {
-        this.previewLockOverlay.style.display = 'flex';
-      } else {
-        this.previewLockOverlay.style.display = 'none';
-      }
+      this.previewLockOverlay.style.display = 'none';
     }
 
     // Header

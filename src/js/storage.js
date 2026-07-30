@@ -28,27 +28,21 @@ class StorageService {
         id: 'girls-batch-4',
         name: 'Girls Batch 4',
         category: 'Girls',
-        title: 'Swimming attendance',
-        subtitle: 'Time : 11:00am to 11:40am',
-        batchName: 'Girls Batch 4',
-        month: 6,
-        year: 2026,
-        dayOfWeek: 6,
-        extraRows: 4,
-        names: []
+        names: [
+          'Aarya Sharma', 'Ananya Patel', 'Diya Verma', 'Isha Gupta', 
+          'Kavya Joshi', 'Meera Reddy', 'Neha Singh', 'Pooja Nair', 
+          'Riya Mehta', 'Sanya Rao', 'Tanvi Kumar', 'Zara Khan'
+        ]
       },
       {
         id: 'boys-batch-4',
         name: 'Boys Batch 4',
         category: 'Boys',
-        title: 'Swimming attendance',
-        subtitle: 'Time : 11:40am to 12:20pm',
-        batchName: 'Boys Batch 4',
-        month: 6,
-        year: 2026,
-        dayOfWeek: 6,
-        extraRows: 4,
-        names: []
+        names: [
+          'Aarav Sharma', 'Aditya Verma', 'Arjun Patel', 'Dev Gupta', 
+          'Ishaan Joshi', 'Kabir Reddy', 'Manav Singh', 'Rohan Nair', 
+          'Sahil Mehta', 'Siddharth Rao', 'Vihaan Kumar', 'Yash Khan'
+        ]
       }
     ];
   }
