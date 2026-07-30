@@ -1,25 +1,25 @@
 /* ==========================================================================
-   AQUAFLOW PRO - MODERN DESIGN SYSTEM TOKENS & COLOR PALETTES
+   AQUAFLOW PRO - 5000X DESIGN SYSTEM & LUXURY VISUAL TOKENS
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap');
 
 :root, [data-theme="light"] {
-  --bg-dark: #f8fafc;
+  --bg-dark: #f6f9fc;
   --bg-surface: #ffffff;
-  --bg-card: rgba(255, 255, 255, 0.9);
+  --bg-card: rgba(255, 255, 255, 0.92);
   --bg-card-hover: #f1f5f9;
   --bg-input: #f1f5f9;
   
-  --border-subtle: #e2e8f0;
+  --border-subtle: rgba(226, 232, 240, 0.9);
   --border-focus: #0284c7;
-  --border-glow: rgba(2, 132, 199, 0.25);
+  --border-glow: rgba(2, 132, 199, 0.3);
   
   --text-main: #0f172a;
   --text-muted: #64748b;
   --text-dim: #94a3b8;
   
-  /* Vibrant Colors */
+  /* Electric Colors */
   --primary-cyan: #0284c7;
   --primary-blue: #2563eb;
   --primary-indigo: #4f46e5;
@@ -29,34 +29,35 @@
   
   /* Sleek Gradients */
   --gradient-brand: linear-gradient(135deg, #0284c7 0%, #2563eb 35%, #6366f1 70%, #db2777 100%);
+  --gradient-card-glow: radial-gradient(circle at 50% 0%, rgba(2, 132, 199, 0.08) 0%, transparent 70%);
   --gradient-btn-primary: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
   --gradient-btn-pink: linear-gradient(135deg, #db2777 0%, #ec4899 100%);
   --gradient-btn-emerald: linear-gradient(135deg, #059669 0%, #10b981 100%);
   --gradient-btn-purple: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
 
-  --shadow-glow: 0 0 35px rgba(2, 132, 199, 0.22);
-  --shadow-card: 0 14px 40px -8px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(0, 0, 0, 0.04);
-  --shadow-floating: 0 25px 60px -15px rgba(0, 0, 0, 0.16);
-  --paper-wrapper-bg: #e2e8f0;
+  --shadow-glow: 0 0 40px rgba(2, 132, 199, 0.25);
+  --shadow-card: 0 20px 45px -10px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  --shadow-floating: 0 30px 80px -15px rgba(0, 0, 0, 0.15);
+  --paper-wrapper-bg: linear-gradient(180deg, #cbd5e1 0%, #e2e8f0 100%);
 
   --radius-xl: 24px;
   --radius-lg: 16px;
   --radius-md: 12px;
   --radius-sm: 8px;
   
-  --glass-backdrop: blur(20px) saturate(190%);
+  --glass-backdrop: blur(24px) saturate(200%);
 }
 
 [data-theme="dark"] {
-  --bg-dark: #070b19;
-  --bg-surface: #0f172a;
-  --bg-card: rgba(15, 23, 42, 0.88);
-  --bg-card-hover: rgba(30, 41, 59, 0.88);
-  --bg-input: rgba(15, 23, 42, 0.95);
+  --bg-dark: #060913;
+  --bg-surface: #0e1629;
+  --bg-card: rgba(14, 22, 41, 0.88);
+  --bg-card-hover: rgba(26, 38, 66, 0.88);
+  --bg-input: rgba(14, 22, 41, 0.95);
   
   --border-subtle: rgba(255, 255, 255, 0.09);
   --border-focus: #38bdf8;
-  --border-glow: rgba(56, 189, 248, 0.4);
+  --border-glow: rgba(56, 189, 248, 0.45);
   
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
@@ -70,12 +71,13 @@
   --accent-emerald: #10b981;
   
   --gradient-brand: linear-gradient(135deg, #38bdf8 0%, #6366f1 50%, #ec4899 100%);
-  --shadow-card: 0 14px 40px -8px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.07);
-  --shadow-floating: 0 25px 60px -15px rgba(0, 0, 0, 0.85);
-  --paper-wrapper-bg: #1e293b;
+  --gradient-card-glow: radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.12) 0%, transparent 70%);
+  --shadow-card: 0 20px 45px -10px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  --shadow-floating: 0 35px 90px -15px rgba(0, 0, 0, 0.9);
+  --paper-wrapper-bg: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
 }
 
-/* Global Reset */
+/* Global Reset & Typography */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -85,9 +87,9 @@
 body {
   background-color: var(--bg-dark);
   background-image: 
-    radial-gradient(at 0% 0%, rgba(2, 132, 199, 0.1) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(219, 39, 119, 0.08) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(124, 58, 237, 0.08) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(2, 132, 199, 0.12) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(219, 39, 119, 0.1) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(124, 58, 237, 0.1) 0px, transparent 50%);
   background-attachment: fixed;
   color: var(--text-main);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -96,8 +98,9 @@ body {
   flex-direction: column;
   overflow-x: hidden;
   transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4, .brand-title {
+h1, h2, h3, h4, .brand-title, .panel-title {
   font-family: 'Plus Jakarta Sans', sans-serif;
 }

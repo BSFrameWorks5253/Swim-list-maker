@@ -1,5 +1,5 @@
 /* ==========================================================================
-   AQUAFLOW PRO - PRINTABLE CANVAS & PRINT MEDIA STYLING
+   AQUAFLOW PRO - 5000X HIGH PRECISION PRINTABLE SHEET CANVAS
    ========================================================================== */
 
 #pdf-document {
@@ -7,45 +7,45 @@
   min-height: 1123px; /* Standard A4 height at 96 DPI (~297mm) */
   background: #ffffff;
   color: #000000;
-  padding: 16mm 18mm 16mm 18mm;
-  box-shadow: var(--shadow-floating);
-  border-radius: 4px;
+  padding: 18mm 20mm 18mm 20mm;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.08);
+  border-radius: 6px;
   transform-origin: top center;
   transition: transform 0.2s ease;
   box-sizing: border-box;
 }
 
 .doc-header {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .doc-title {
   font-family: 'Helvetica', 'Arial', sans-serif;
-  font-size: 1.48rem;
+  font-size: 1.55rem;
   font-weight: 800;
   color: #000000;
-  line-height: 1.25;
-  margin-bottom: 3px;
+  line-height: 1.2;
+  margin-bottom: 4px;
 }
 
 .doc-subtitle {
   font-family: 'Helvetica', 'Arial', sans-serif;
-  font-size: 1.08rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: #000000;
   line-height: 1.25;
-  margin-bottom: 3px;
+  margin-bottom: 4px;
 }
 
 .doc-batch {
   font-family: 'Helvetica', 'Arial', sans-serif;
-  font-size: 1.12rem;
+  font-size: 1.16rem;
   font-weight: 800;
   color: #000000;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
-/* Printable Document Table Format */
+/* Printable Table Format */
 .doc-table {
   width: 100%;
   border-collapse: collapse;
@@ -56,13 +56,13 @@
 .doc-table th,
 .doc-table td {
   border: 1px solid #000000;
-  padding: 4px 6px;
+  padding: 5px 8px;
   vertical-align: middle;
   box-sizing: border-box;
 }
 
 .doc-table th {
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 800;
   text-align: center;
   background: #ffffff;
@@ -72,13 +72,13 @@
 .doc-table th:first-child,
 .doc-table td:first-child {
   text-align: left;
-  font-weight: 500;
-  font-size: 0.88rem;
-  width: 38%;
+  font-weight: 600;
+  font-size: 0.9rem;
+  width: 36%;
 }
 
 .doc-table tr {
-  height: var(--cell-row-height, 52px);
+  height: var(--cell-row-height, 50px);
 }
 
 /* Print Rules (Strict 1-Page Output) */
@@ -103,8 +103,8 @@
   .controls-sidebar,
   .preview-toolbar,
   .app-footer,
-  .mobile-view-tabs,
-  .mobile-sticky-bar,
+  .mobile-nav-dock,
+  .mobile-drawer-overlay,
   .toast-container {
     display: none !important;
   }
