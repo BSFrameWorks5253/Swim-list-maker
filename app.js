@@ -121,39 +121,20 @@ function showToast(message, type = 'info') {
 // State Management & Main Application Controller
 class AttendanceApp {
   constructor() {
-    this.users = this.loadUsers();
-    this.activeUserId = localStorage.getItem('aquaflow_active_user_id') || 'coach_burhan';
-    this.currentUser = this.users.find(u => u.id === this.activeUserId) || this.users[0];
+    this.firebaseServices = AuthService.initFirebase();
+    this.auth = this.firebaseServices.auth;
+    this.db = this.firebaseServices.db;
 
-    this.presets = this.loadStoredPresets();
+    this.users = this.loadUsers();
+    this.activeUserId = localStorage.getItem('aquaflow_active_user_id') || 'guest';
+    this.currentUser = this.users.find(u => u.id === this.activeUserId) || this.users[2];
+
+    this.presets = StorageService.getEmptyPresets();
+    this.state = StorageService.getEmptyState();
     this.activePresetId = 'girls-batch-4';
     this.zoomScale = 1.0;
     this.searchQuery = '';
     this.currentTheme = localStorage.getItem('app_theme') || 'light';
-    
-    // Default Fallback State
-    const girlsPreset = this.presets.find(p => p.id === 'girls-batch-4') || SAMPLE_PRESETS[0];
-    const defaultState = {
-      title: 'Swimming attendance',
-      subtitle: 'Time : 11:00am to 11:40am',
-      batchName: 'Girls Batch 4',
-      category: 'Girls', // 'Girls' | 'Boys' | 'Custom'
-      month: 6, // July (0-indexed)
-      year: 2026,
-      dayOfWeek: 6, // 6 = Saturday
-      useCustomDates: false,
-      customDates: [],
-      extraRows: 4,
-      rowHeight: 48,
-      excludedDates: '',
-      names: girlsPreset ? [...girlsPreset.names] : []
-    };
-
-    // Auto-restore last edited state from localStorage for active user
-    const savedState = this.loadActiveState();
-    this.state = (savedState && savedState.names && savedState.names.length > 0) 
-      ? { ...defaultState, ...savedState } 
-      : defaultState;
 
     this.initElements();
     this.applyTheme(this.currentTheme);
@@ -166,7 +147,7 @@ class AttendanceApp {
     this.autoScaleMobilePreview();
     this.handleEmailLinkAuth();
     this.handleGoogleRedirectResult();
-    this.initFirebaseAuthListener();
+    this.initFirebaseAuthObserver();
   }
 
   dismissSplash() {
@@ -228,37 +209,27 @@ class AttendanceApp {
   }
 
   saveActiveState() {
-    try {
-      const key = `aquaflow_state_user_${this.activeUserId}`;
-      localStorage.setItem(key, JSON.stringify(this.state));
-
-      // Push to Firestore for strictly authenticated UID
-      if (typeof firebase !== 'undefined' && firebaseDb && firebaseAuth && firebaseAuth.currentUser && firebaseAuth.currentUser.uid === this.activeUserId) {
-        firebaseDb.collection('user_workspaces').doc(this.activeUserId).set({
-          state: this.state,
-          presets: this.presets,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true }).catch(err => console.warn('Cloud sync error:', err.message));
-      }
-
-      this.triggerCloudSync();
-    } catch (e) {
-      console.warn('Could not save active state to localStorage', e);
-    }
+    StorageService.saveUserWorkspace(this.activeUserId, this.state, this.presets, this.db, this.auth);
+    this.triggerCloudSync();
   }
 
-  initFirebaseAuthListener() {
-    if (typeof firebase !== 'undefined' && firebase.auth) {
-      firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-          const userId = user.uid;
+  saveStoredPresets() {
+    StorageService.saveUserWorkspace(this.activeUserId, this.state, this.presets, this.db, this.auth);
+    this.triggerCloudSync();
+  }
+
+  initFirebaseAuthObserver() {
+    if (this.auth) {
+      AuthService.onAuthStateChanged(this.auth, async (userProfile) => {
+        if (userProfile) {
+          const userId = userProfile.uid;
           const userObj = {
             id: userId,
-            name: user.displayName || (user.email ? user.email.split('@')[0] : 'PRO Coach'),
-            username: user.email ? user.email.split('@')[0] : userId,
-            email: user.email || '',
+            name: userProfile.name,
+            username: userProfile.email ? userProfile.email.split('@')[0] : userId,
+            email: userProfile.email,
             role: 'Firebase Verified Coach',
-            avatar: '🔥'
+            avatar: userProfile.photoURL ? '🌐' : '🔥'
           };
 
           if (!this.users.find(u => u.id === userId)) {
@@ -270,29 +241,24 @@ class AttendanceApp {
           this.currentUser = userObj;
           localStorage.setItem('aquaflow_active_user_id', userId);
 
-          // Fetch Private Firestore Document for this exact User ID
-          if (firebaseDb) {
-            firebaseDb.collection('user_workspaces').doc(userId).get().then(doc => {
-              if (doc.exists) {
-                const data = doc.data();
-                if (data.state) this.state = data.state;
-                if (data.presets) this.presets = data.presets;
-                this.updateControlsFromState();
-                this.updateApp();
-                this.autoFitOnePage(false);
-              }
-            }).catch(e => console.warn('Firestore load:', e.message));
-          }
+          // Strictly load User A's data ONLY for User A
+          const workspace = await StorageService.loadUserWorkspace(userId, this.db);
+          this.state = workspace.state;
+          this.presets = workspace.presets;
 
           this.updateUserHeaderUI();
+          this.updateControlsFromState();
+          this.renderPresets();
+          this.updateApp();
+          this.autoFitOnePage(false);
           if (this.authModal) this.authModal.classList.remove('active');
         } else {
-          // Mandatory login popup on first visit if not logged in
+          // Mandatory login popup on first visit
           setTimeout(() => {
             if (this.authModal && (!this.activeUserId || this.activeUserId === 'guest')) {
               this.authModal.classList.add('active');
             }
-          }, 600);
+          }, 500);
         }
       });
     } else {
@@ -300,34 +266,7 @@ class AttendanceApp {
         if (this.authModal && (!this.activeUserId || this.activeUserId === 'guest')) {
           this.authModal.classList.add('active');
         }
-      }, 600);
-    }
-  }
-
-  loadStoredPresets() {
-    let presets = [...SAMPLE_PRESETS];
-    try {
-      const key = `aquaflow_presets_user_${this.activeUserId}`;
-      const stored = localStorage.getItem(key);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          presets = parsed;
-        }
-      }
-    } catch (e) {
-      console.warn('Could not load presets from localStorage', e);
-    }
-    return presets;
-  }
-
-  saveStoredPresets() {
-    try {
-      const key = `aquaflow_presets_user_${this.activeUserId}`;
-      localStorage.setItem(key, JSON.stringify(this.presets));
-      this.triggerCloudSync();
-    } catch (e) {
-      console.warn('Could not save presets to localStorage', e);
+      }, 500);
     }
   }
 
@@ -343,7 +282,7 @@ class AttendanceApp {
     }
   }
 
-  switchUser(userId) {
+  async switchUser(userId) {
     const found = this.users.find(u => u.id === userId);
     if (!found) return;
 
@@ -352,48 +291,19 @@ class AttendanceApp {
     localStorage.setItem('aquaflow_active_user_id', userId);
 
     // Strictly wipe state in memory before loading user's data
-    this.state = {
-      title: 'Swimming attendance',
-      subtitle: 'Time : 11:00am to 11:40am',
-      batchName: 'Girls Batch 4',
-      category: 'Girls',
-      month: 6,
-      year: 2026,
-      dayOfWeek: 6,
-      useCustomDates: false,
-      customDates: [],
-      extraRows: 4,
-      rowHeight: 48,
-      excludedDates: '',
-      names: []
-    };
+    this.state = StorageService.getEmptyState();
+    this.presets = StorageService.getEmptyPresets();
 
-    this.presets = this.loadStoredPresets();
-
-    const saved = this.loadActiveState();
-    if (saved) {
-      this.state = saved;
-    }
-
-    // Load private Firestore data for signed in UID
-    if (typeof firebase !== 'undefined' && firebaseDb && firebaseAuth && firebaseAuth.currentUser && firebaseAuth.currentUser.uid === userId) {
-      firebaseDb.collection('user_workspaces').doc(userId).get().then(doc => {
-        if (doc.exists) {
-          const data = doc.data();
-          if (data.state) this.state = data.state;
-          if (data.presets) this.presets = data.presets;
-          this.updateControlsFromState();
-          this.updateApp();
-          this.autoFitOnePage(false);
-        }
-      }).catch(e => console.warn('Firestore load:', e.message));
-    }
+    const workspace = await StorageService.loadUserWorkspace(userId, this.db);
+    this.state = workspace.state;
+    this.presets = workspace.presets;
 
     this.updateUserHeaderUI();
     this.updateControlsFromState();
+    this.renderPresets();
     this.updateApp();
     this.autoFitOnePage(false);
-    showToast(`Switched account to ${found.name}`, 'success');
+    showToast(`Switched workspace to ${found.name}`, 'success');
   }
 
   updateUserHeaderUI() {
@@ -808,10 +718,18 @@ class AttendanceApp {
 
     // Logout
     if (this.btnLogout) {
-      this.btnLogout.addEventListener('click', () => {
-        this.switchUser('guest');
-        if (this.authModal) this.authModal.classList.remove('active');
-        showToast('Logged out of account', 'info');
+      this.btnLogout.addEventListener('click', async () => {
+        await AuthService.signOut(this.auth);
+        this.activeUserId = 'guest';
+        this.currentUser = { name: 'Guest Coach', avatar: '👤' };
+        this.state = StorageService.getEmptyState();
+        this.presets = StorageService.getEmptyPresets();
+        this.updateUserHeaderUI();
+        this.updateControlsFromState();
+        this.renderPresets();
+        this.updateApp();
+        if (this.authModal) this.authModal.classList.add('active');
+        showToast('Logged out. Workspace wiped cleanly.', 'info');
       });
     }
 
