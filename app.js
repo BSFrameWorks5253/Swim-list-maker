@@ -1,3 +1,40 @@
+// Security XSS Sanitization Helper
+function sanitizeInput(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+// Load Firebase Credentials safely from window.AQUAFLOW_CONFIG or environment
+const firebaseConfig = (window.AQUAFLOW_CONFIG && window.AQUAFLOW_CONFIG.firebase) ? window.AQUAFLOW_CONFIG.firebase : {
+  apiKey: "AIzaSyAquaFlowProStudioAuthKey2026Demo",
+  authDomain: "aquaflow-pro.firebaseapp.com",
+  projectId: "aquaflow-pro",
+  storageBucket: "aquaflow-pro.appspot.com",
+  messagingSenderId: "84729384729",
+  appId: "1:84729384729:web:a1b2c3d4e5f6g7h8"
+};
+
+// Initialize Firebase SDK
+let firebaseAuth = null;
+let firebaseDb = null;
+
+try {
+  if (typeof firebase !== 'undefined' && firebase.initializeApp) {
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    firebaseAuth = firebase.auth();
+    firebaseDb = firebase.firestore();
+  }
+} catch (e) {
+  console.info('Firebase loaded in local persistence mode', e.message);
+}
+
 // Helper: Ordinal number suffix (e.g. 1st, 2nd, 3rd, 4th, 11th, 21st)
 function getOrdinal(n) {
   const s = ["th", "st", "nd", "rd"];

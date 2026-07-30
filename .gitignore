@@ -1,0 +1,13 @@
+# Environment & Secrets
+.env
+.env.local
+.env.production
+
+# Node / Dependencies
+node_modules/
+package-lock.json
+
+# System & Logs
+*.log
+.DS_Store
+Thumbs.db
